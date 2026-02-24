@@ -5,7 +5,6 @@
 </head>
 <body>
 
-<h2>تسجيل الدخول الى النضام ا</h2>
 
 @if($errors->any())
     <div style="color:red">
