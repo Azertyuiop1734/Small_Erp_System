@@ -31,8 +31,8 @@
                 <input type="number" name="minimum_stock" class="form-control" value="5">
             </div>
 <div class="col-md-4 mb-3">
-    <label class="form-label">الكمية المتوفرة حالياً</label>
-    <input type="number" name="initial_quantity" class="form-control" value="0" min="0" required>
+  
+    <input type="hidden" name="initial_quantity" class="form-control" value="0" min="0" required>
 </div>
             <div class="col-md-4 mb-3">
                 <label class="form-label">القسم (Category)</label>
@@ -43,15 +43,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-4 mb-3">
-                <label class="form-label">المورد (Supplier)</label>
-                <select name="supplier_id" class="form-select" required>
-                    <option value="">-- اختر المورد --</option>
-                    @foreach($suppliers as $sup)
-                        <option value="{{ $sup->id }}">{{ $sup->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+         
             <div class="col-md-4 mb-3">
                 <label class="form-label">المخزن الأساسي</label>
                 <select name="warehouse_id" class="form-select" required>
@@ -62,10 +54,7 @@
                 </select>
             </div>
             
-            <div class="col-md-6 mb-3">
-                <label class="form-label">سعر الشراء</label>
-                <input type="number" step="0.01" name="purchase_price" class="form-control" required>
-            </div>
+            
             <div class="col-md-6 mb-3">
                 <label class="form-label">سعر البيع</label>
                 <input type="number" step="0.01" name="selling_price" class="form-control" required>

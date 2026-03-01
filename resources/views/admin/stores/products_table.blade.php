@@ -25,7 +25,7 @@
         {{ number_format($product->selling_price, 2) }}
     </td>
 
-    <td>{{ $product->supplier_name }}</td>
+   
 
     <td>
         <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ $product->id }})">

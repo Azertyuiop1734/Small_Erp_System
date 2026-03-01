@@ -51,24 +51,9 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold">المورد</label>
-                                    <select name="supplier_id" class="form-select form-select-lg">
-                                        @foreach($suppliers as $sup)
-                                            <option value="{{ $sup->id }}" {{ $product->supplier_id == $sup->id ? 'selected' : '' }}>
-                                                {{ $sup->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                              
 
-                                <div class="col-md-6">
-                                    <label class="form-label fw-bold text-danger">سعر الشراء</label>
-                                    <div class="input-group">
-                                        <input type="number" step="0.01" name="purchase_price" class="form-control form-control-lg text-center" value="{{ $product->purchase_price }}">
-                                        <span class="input-group-text">د.ج</span>
-                                    </div>
-                                </div>
+                           
 
                                 <div class="col-md-6">
                                     <label class="form-label fw-bold text-success">سعر البيع</label>

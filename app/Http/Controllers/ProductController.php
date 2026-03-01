@@ -12,10 +12,10 @@ class ProductController extends Controller
     {
         // جلب البيانات لعرضها في القوائم المنسدلة (Dropdowns)
         $categories = DB::table('categories')->get();
-        $suppliers = DB::table('suppliers')->get();
+       
         $warehouses = DB::table('warehouses')->get();
 
-        return view('admin.stores.add_product', compact('categories', 'suppliers', 'warehouses'));
+        return view('admin.stores.add_product', compact('categories', 'warehouses'));
     }
 
     public function store(Request $request)
@@ -26,10 +26,10 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'barcode' => 'required|unique:products,barcode',
             'category_id' => 'required|numeric',
-            'supplier_id' => 'required|numeric',
+           
             'warehouse_id' => 'required|numeric',
             'initial_quantity' => 'required|integer|min:0',
-            'purchase_price' => 'required|numeric',
+            
             'selling_price' => 'required|numeric',
             'image' => 'nullable|image|max:2048',
         ]);
@@ -47,8 +47,8 @@ class ProductController extends Controller
                     'name' => $request->name,
                     'barcode' => $request->barcode,
                     'category_id' => $request->category_id,
-                    'supplier_id' => $request->supplier_id,
-                    'purchase_price' => $request->purchase_price,
+                   
+                    
                     'selling_price' => $request->selling_price,
                     'image' => $imagePath,
                     'minimum_stock' => $request->minimum_stock ?? 5,
@@ -81,7 +81,6 @@ class ProductController extends Controller
             $query = DB::table('products')
                 // نستخدم leftJoin لضمان ظهور المنتج حتى لو لم يربط بمخزن بعد
                 ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
-                ->leftJoin('suppliers', 'products.supplier_id', '=', 'suppliers.id')
                 ->leftJoin('product_warehouse', 'products.id', '=', 'product_warehouse.product_id')
                 ->leftJoin('warehouses', 'product_warehouse.warehouse_id', '=', 'warehouses.id')
                 ->select(
@@ -91,7 +90,6 @@ class ProductController extends Controller
                     'products.image',
                     'products.selling_price',
                     'categories.category_name',
-                    'suppliers.name as supplier_name',
                     'warehouses.name as warehouse_name',
                     'product_warehouse.quantity',
                     'product_warehouse.warehouse_id'
@@ -156,14 +154,14 @@ class ProductController extends Controller
         }
 
         $categories = DB::table('categories')->get();
-        $suppliers = DB::table('suppliers')->get();
+        
 
         // جلب بيانات المخزن المرتبط بهذا المنتج حالياً
         $currentStock = DB::table('product_warehouse')
             ->where('product_id', $id)
             ->first();
 
-        return view('admin.stores.edit_product', compact('product', 'categories', 'suppliers', 'currentStock'));
+        return view('admin.stores.edit_product', compact('product', 'categories', 'currentStock'));
     }
 
     // 2. دالة حفظ التعديلات
@@ -172,7 +170,7 @@ class ProductController extends Controller
         // 1. التحقق من البيانات
         $request->validate([
             'name' => 'required|string|max:255',
-            'purchase_price' => 'required|numeric',
+            
             'selling_price' => 'required|numeric',
         ]);
 
@@ -183,8 +181,8 @@ class ProductController extends Controller
                 ->update([
                     'name' => $request->name,
                     'category_id' => $request->category_id,
-                    'supplier_id' => $request->supplier_id,
-                    'purchase_price' => $request->purchase_price,
+                    
+                    
                     'selling_price' => $request->selling_price,
                     'updated_at' => now(), // مهم جداً لتحديث وقت العملية
                 ]);

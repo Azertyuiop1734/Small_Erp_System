@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\PurchaseController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -89,6 +90,21 @@ Route::get('/admin/products/delete/{id}', [ProductController::class, 'destroy'])
 Route::get('/admin/products/edit/{id}', [ProductController::class, 'edit'])->name('products.edit');
 Route::post('/admin/products/update/{id}', [ProductController::class, 'update'])->name('products.update');
 
+
+
+// مجموعة مسارات المشتريات
+Route::prefix('purchases')->group(function () {
+    // لعرض صفحة إضافة مشتريات جديدة
+    Route::get('/admin/products/create', [PurchaseController::class, 'create'])->name('purchases.create');
+    Route::get('/get-product/{barcode}', [PurchaseController::class, 'getProductByBarcode']);
+    Route::get('/purchases', [PurchaseController::class, 'index'])->name('purchases.index');
+    Route::get('/{id}', [PurchaseController::class, 'show'])->name('purchases.show');
+    // لاستقبال بيانات الفورم وحفظها في قاعدة البيانات
+    Route::post('/store', [PurchaseController::class, 'store'])->name('purchases.store');
+    
+    // (اختياري) لعرض قائمة بكل المشتريات السابقة
+    Route::get('/', [PurchaseController::class, 'index'])->name('purchases.index');
+});
 
 //---------------------------------
 
