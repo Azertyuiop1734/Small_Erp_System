@@ -6,16 +6,16 @@ use Illuminate\Support\Facades\DB;
 
 class SupplierController extends Controller
 {
-    // عرض صفحة النموذج
+ 
     public function create()
     {
         return view('admin.suppliers.add_suppliers');
     }
 
-    // حفظ البيانات
+  
     public function store(Request $request)
     {
-        // التحقق من صحة البيانات
+       
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string',
@@ -24,7 +24,7 @@ class SupplierController extends Controller
             'balance' => 'nullable|numeric',
         ]);
 
-        // إدخال البيانات في الجدول
+      
         DB::table('suppliers')->insert([
             'name' => $request->name,
             'phone' => $request->phone,
@@ -37,20 +37,20 @@ class SupplierController extends Controller
 
         return redirect()->back()->with('success', 'تم إضافة المورد بنجاح!');
     }
-    // جلب وعرض قائمة الموردين
+    
 public function index()
 {
     $suppliers = DB::table('suppliers')->orderBy('id', 'desc')->get();
     return view('admin.suppliers.display_suppliers', compact('suppliers'));
 }
 
-// حذف مورد
+
 public function destroy($id)
 {
     DB::table('suppliers')->where('id', $id)->delete();
     return redirect()->back()->with('success', 'تم حذف المورد بنجاح!');
 }
-// دالة عرض صفحة التعديل
+
 public function edit($id)
 {
     $supplier = DB::table('suppliers')->where('id', $id)->first();
@@ -62,7 +62,7 @@ public function edit($id)
     return view('admin.suppliers.edit', compact('supplier'));
 }
 
-// دالة تحديث البيانات
+
 public function update(Request $request, $id)
 {       
     $request->validate([
@@ -76,7 +76,7 @@ public function update(Request $request, $id)
             'company_name' => $request->company_name,
             'phone' => $request->phone,
             'address' => $request->address,
-            'balance' => $request->balance, // انتبه لتعديل الدين يدوياً
+            'balance' => $request->balance, 
             'updated_at' => now(),
         ]);
 

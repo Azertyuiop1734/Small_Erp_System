@@ -18,6 +18,7 @@ Route::get('/', function () {
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 // صفحات بعد تسجيل الدخول
 Route::get('/admin/dashboard', function () {
@@ -91,6 +92,10 @@ Route::get('/admin/products/edit/{id}', [ProductController::class, 'edit'])->nam
 Route::post('/admin/products/update/{id}', [ProductController::class, 'update'])->name('products.update');
 
 
+//-------------------------------
+
+
+
 
 // مجموعة مسارات المشتريات
 Route::prefix('purchases')->group(function () {
@@ -105,6 +110,20 @@ Route::prefix('purchases')->group(function () {
     // (اختياري) لعرض قائمة بكل المشتريات السابقة
     Route::get('/', [PurchaseController::class, 'index'])->name('purchases.index');
 });
+
+
+
+//--------------------
+
+
+
+
+// مسار لوحة التحكم الإحصائية
+Route::get('admin/index1', [DashboardController::class, 'index'])->name('dashboard.index');
+
+
+
+
 
 //---------------------------------
 

@@ -6,13 +6,13 @@ use Illuminate\Support\Facades\DB;
 
 class StoreController extends Controller
 {
-    // عرض صفحة الإضافة
+
     public function create()
     {
         return view('admin.stores.add_store');
     }
 
-    // حفظ المخزن الجديد
+  
 public function store(Request $request)
     {
         $request->validate([
@@ -29,14 +29,14 @@ public function store(Request $request)
 
         return redirect()->back()->with('success', 'تم إضافة المخزن بنجاح!');
     }
-  // جلب وعرض قائمة المخازن
+
 public function index()
 {
     $stores = DB::table('warehouses')->orderBy('id', 'desc')->get();
     return view('admin.stores.display_stores', compact('stores'));
 }
 
-// حذف مخزن
+
 public function destroy($id)
 {
     DB::table('warehouses')->where('id', $id)->delete();

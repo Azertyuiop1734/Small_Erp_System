@@ -41,38 +41,46 @@
 
             <div class="relative overflow-x-auto sm:rounded-lg mb-4">
                 <table class="w-full text-sm text-right text-gray-500" id="products_table">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-                        <tr>
-                            <th class="px-4 py-3">الباركود</th>
-                            <th class="px-4 py-3">اسم المنتج</th>
-                            <th class="px-4 py-3">الكمية</th>
-                            <th class="px-4 py-3">سعر الشراء</th>
-                            <th class="px-4 py-3 text-center">الإجمالي</th>
-                            <th class="px-4 py-3 text-center">إجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody id="items-container">
-                        <tr class="border-b bg-white item-row">
-                            <td class="px-4 py-3">
-                                <input type="text" name="items[0][barcode]" class="barcode-input w-full p-2 bg-blue-50 border border-blue-200 rounded focus:ring-2 focus:ring-blue-500" placeholder="امسح الباركود">
-                                <input type="hidden" name="items[0][product_id]" class="product-id">
-                            </td>
-                            <td class="px-4 py-3">
-                                <input type="text" class="product-name w-full p-2 bg-gray-100 border-none rounded" readonly placeholder="تلقائي">
-                            </td>
-                            <td class="px-4 py-3">
-                                <input type="number" name="items[0][quantity]" class="qty w-full p-2 border border-gray-300 rounded" required min="1" value="1">
-                            </td>
-                            <td class="px-4 py-3">
-                                <input type="number" name="items[0][price]" step="0.01" class="price w-full p-2 border border-gray-300 rounded" required>
-                            </td>
-                            <td class="px-4 py-3 text-center font-bold line-total">0.00</td>
-                            <td class="px-4 py-3 text-center">
-                                <button type="button" class="remove-row text-red-500 hover:text-red-700 font-bold">حذف</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+    <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+        <tr>
+            <th class="px-4 py-3">الباركود</th>
+            <th class="px-4 py-3">اسم المنتج</th>
+            <th class="px-4 py-3">عدد الصناديق</th>
+            <th class="px-4 py-3">وحدة/صندوق</th>
+            <th class="px-4 py-3">الكمية الكلية</th>
+            <th class="px-4 py-3">سعر الوحدة</th>
+            <th class="px-4 py-3 text-center">الإجمالي</th>
+            <th class="px-4 py-3 text-center">إجراء</th>
+        </tr>
+    </thead>
+    <tbody id="items-container">
+        <tr class="border-b bg-white item-row">
+            <td class="px-4 py-3">
+                <input type="text" name="items[0][barcode]" class="barcode-input w-full p-2 bg-blue-50 border border-blue-200 rounded" placeholder="الباركود">
+                <input type="hidden" name="items[0][product_id]" class="product-id">
+            </td>
+            <td class="px-4 py-3">
+                <input type="text" class="product-name w-full p-2 bg-gray-100 border-none rounded" readonly placeholder="تلقائي">
+            </td>
+            <td class="px-4 py-3">
+                <input type="number" name="items[0][boxes_count]" class="boxes-count w-full p-2 border border-gray-300 rounded" required min="1" value="1">
+            </td>
+            <td class="px-4 py-3">
+                <input type="number" name="items[0][units_per_box]" class="units-per-box w-full p-2 border border-gray-300 rounded" required min="1" value="1">
+            </td>
+            <td class="px-4 py-3">
+                <input type="number" name="items[0][quantity]" class="qty w-full p-2 border border-gray-300 rounded bg-gray-50" required min="1" value="1" readonly>
+            </td>
+            <td class="px-4 py-3">
+                <input type="number" name="items[0][price]" step="0.01" class="price w-full p-2 border border-gray-300 rounded" required>
+            </td>
+            <td class="px-4 py-3 text-center font-bold line-total">0.00</td>
+            <td class="px-4 py-3 text-center">
+                <button type="button" class="remove-row text-red-500 hover:text-red-700 font-bold">حذف</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
             </div>
 
             <button type="button" id="add-item" class="mb-8 px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition">
@@ -194,31 +202,40 @@
             }
         });
     });
+document.addEventListener('input', function(e) {
+    const row = e.target.closest('.item-row');
+    
+    if (row && (e.target.classList.contains('boxes-count') || e.target.classList.contains('units-per-box'))) {
+        const boxes = parseFloat(row.querySelector('.boxes-count').value) || 0;
+        const units = parseFloat(row.querySelector('.units-per-box').value) || 0;
+        // تحديث الكمية الكلية تلقائياً
+        row.querySelector('.qty').value = boxes * units;
+    }
 
-    // --- 4. العمليات الحسابية ---
-    document.addEventListener('input', function(e) {
-        if (e.target.classList.contains('qty') || e.target.classList.contains('price') || e.target.id === 'paid_amount') {
-            calculateTotals();
-        }
+    if (e.target.classList.contains('qty') || e.target.classList.contains('price') || 
+        e.target.classList.contains('boxes-count') || e.target.id === 'paid_amount') {
+        calculateTotals();
+    }
+});
+
+function calculateTotals() {
+    let grandTotal = 0;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const qty = parseFloat(row.querySelector('.qty').value) || 0;
+        const price = parseFloat(row.querySelector('.price').value) || 0;
+        const lineTotal = qty * price;
+        
+        row.querySelector('.line-total').textContent = lineTotal.toFixed(2);
+        grandTotal += lineTotal;
     });
 
-    function calculateTotals() {
-        let grandTotal = 0;
-        document.querySelectorAll('.item-row').forEach(row => {
-            const qty = parseFloat(row.querySelector('.qty').value) || 0;
-            const price = parseFloat(row.querySelector('.price').value) || 0;
-            const lineTotal = qty * price;
-            row.querySelector('.line-total').textContent = lineTotal.toFixed(2);
-            grandTotal += lineTotal;
-        });
+    document.getElementById('grand-total-display').textContent = grandTotal.toFixed(2);
+    document.getElementById('grand-total-input').value = grandTotal.toFixed(2);
 
-        document.getElementById('grand-total-display').textContent = grandTotal.toFixed(2);
-        document.getElementById('grand-total-input').value = grandTotal.toFixed(2);
-
-        const paid = parseFloat(document.getElementById('paid_amount').value) || 0;
-        const remaining = grandTotal - paid;
-        document.getElementById('remaining-amount-display').textContent = remaining.toFixed(2);
-    }
+    const paid = parseFloat(document.getElementById('paid_amount').value) || 0;
+    const remaining = grandTotal - paid;
+    document.getElementById('remaining-amount-display').textContent = remaining.toFixed(2);
+}
 });
     </script>
 </body>

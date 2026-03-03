@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
@@ -22,76 +22,79 @@ class PurchaseController extends Controller
         return view('admin.stores.add_purchase', compact('suppliers', 'warehouses', 'products'));
     }
 
-    public function store(Request $request)
-    {
-        // 1. التحقق من البيانات
-        $request->validate([
-            'supplier_id' => 'required',
-            'warehouse_id' => 'required',
-            'purchase_date' => 'required|date',
-            'items' => 'required|array',
+   public function store(Request $request)
+{
+    // 1. التحقق من البيانات
+    $request->validate([
+        'supplier_id' => 'required',
+        'warehouse_id' => 'required',
+        'purchase_date' => 'required|date',
+        'items' => 'required|array',
+        'items.*.barcode' => 'required',
+        'items.*.boxes_count' => 'required|numeric|min:1',
+        'items.*.units_per_box' => 'required|numeric|min:1',
+        'items.*.price' => 'required|numeric',
+    ]);
+
+    DB::transaction(function () use ($request) {
+        // 2. إنشاء رأس الفاتورة
+        $purchase = Purchase::create([
+            'supplier_id' => $request->supplier_id,
+            'user_id' => auth()->id() ?? 2, 
+            'warehouse_id' => $request->warehouse_id,
+            'total_amount' => $request->total_amount,
+            'paid_amount' => $request->paid_amount,
+            'remaining_amount' => $request->total_amount - $request->paid_amount,
+            'purchase_date' => $request->purchase_date,
         ]);
 
-        DB::transaction(function () use ($request) {
-            // 2. إنشاء سجل المشتريات الرئيسي
-            $purchase = Purchase::create([
-                'supplier_id' => $request->supplier_id,
-                'user_id' => 2, // تأكد من تسجيل الدخول
-                'warehouse_id' => $request->warehouse_id,
-                'total_amount' => $request->total_amount,
-                'paid_amount' => $request->paid_amount,
-                'remaining_amount' => $request->total_amount - $request->paid_amount,
-                'purchase_date' => $request->purchase_date,
+        foreach ($request->items as $item) {
+            // 3. تحديث أو إنشاء المنتج (بيانات أساسية فقط)
+            // ملاحظة: تم حذف units_per_box من هنا لأنها انتقلت للمخزن
+            $product = Product::updateOrCreate(
+                ['barcode' => $item['barcode']], 
+                [
+                    'name' => $item['product_name'] ?? 'منتج جديد ' . $item['barcode'],
+                    'category_id' => $item['category_id'] ?? 1,
+                    
+                    'selling_price' => $item['selling_price'] ?? ($item['price'] * 1.5),
+                ]
+            );
+
+            // 4. تسجيل تفاصيل الصناديق في عنصر الشراء (للتوثيق التاريخي)
+            PurchaseItem::create([
+                'purchase_id' => $purchase->id,
+                'product_id' => $product->id, 
+                'quantity' => $item['quantity'], // الكمية الكلية (عدد الصناديق * الوحدات)
+                'price' => $item['price'],
+                'total' => $item['quantity'] * $item['price'],
+                'boxes_count' => $item['boxes_count'],
+                'units_per_box' => $item['units_per_box'],
             ]);
 
-            foreach ($request->items as $item) {
-                // 1. التعامل مع جدول المنتجات (الرئيسي)
-                // نبحث عن المنتج بالباركود، إذا وجده يأخذه، وإذا لم يجده ينشئه
-                $product = Product::firstOrCreate(
-                    ['barcode' => $item['barcode']], // شرط البحث
-                    [
-                        'name' => $item['product_name'] ?? 'منتج جديد ' . $item['barcode'],
-                        'category_id' => $item['category_id'] ?? 1,
-                        'selling_price' => $item['selling_price'] ?? ($item['price'] * 1.5),
-                    ]
-                );
+            // 5. تحديث المخزون في الجدول الوسيط (product_warehouse)
+            // هذا هو المكان الصحيح لعدد الصناديق والوحدات حالياً
+            $stock = ProductWarehouse::firstOrNew([
+                'product_id' => $product->id,
+                'warehouse_id' => $request->warehouse_id
+            ]);
 
-                // 2. إضافة العناصر لجدول purchase_items
-                PurchaseItem::create([
-                    'purchase_id' => $purchase->id,
-                    'product_id' => $product->id, // استخدم ID المنتج الذي حصلنا عليه أعلاه
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                    'total' => $item['quantity'] * $item['price'],
-                ]);
+            // إضافة الكميات الجديدة للقيم القديمة
+            $stock->quantity += $item['quantity'];
+            $stock->boxes_count += $item['boxes_count'];
+            $stock->units_per_box = $item['units_per_box']; // تحديث معامل التحويل لأحدث قيمة
+            
+            $stock->save();
+        }
+    });
 
-                // 3. تحديث كمية المخزن (ProductWarehouse)
-                // نبحث هل هذا المنتج موجود في هذا المخزن "تحديداً"؟
-                $stock = ProductWarehouse::where('product_id', $product->id)
-                    ->where('warehouse_id', $request->warehouse_id)
-                    ->first();
-
-                if ($stock) {
-                    // إذا كان موجوداً في هذا المخزن، نزيد الكمية
-                    $stock->increment('quantity', $item['quantity']);
-                } else {
-                    // إذا كان المنتج موجوداً في النظام ولكن لأول مرة يدخل هذا المخزن
-                    ProductWarehouse::create([
-                        'product_id' => $product->id,
-                        'warehouse_id' => $request->warehouse_id,
-                        'quantity' => $item['quantity'],
-                    ]);
-                }
-            }
-        });
-
-        return redirect()->back()->with('success', 'تم تسجيل المشتريات وتحديث المخزون بنجاح');
-    }
+    return redirect()->back()->with('success', 'تم تسجيل المشتريات وتحديث المخزون بنجاح');
+}
 
 
     public function getProductByBarcode($barcode)
     {
-        // تنظيف الباركود من أي مسافات زائدة
+ 
         $cleanBarcode = trim($barcode);
 
         $product = Product::where('barcode', $cleanBarcode)->first();
@@ -107,7 +110,7 @@ class PurchaseController extends Controller
     }
 
 
- // عرض كل المشتريات مع عمل Join للجداول يدوياً
+
 public function index()
 {
     $purchases = DB::table('purchases')
@@ -115,8 +118,8 @@ public function index()
     ->join('warehouses', 'purchases.warehouse_id', '=', 'warehouses.id')
     ->select(
         'purchases.*', 
-        'suppliers.name as supplier_name',   // هذا هو الاسم الذي سنستخدمه
-        'warehouses.name as warehouse_name' // وهذا أيضاً
+        'suppliers.name as supplier_name',   
+        'warehouses.name as warehouse_name' 
     )
     ->orderBy('purchases.created_at', 'desc')
     ->get();
@@ -124,10 +127,10 @@ public function index()
     return view('admin.stores.purchases', compact('purchases'));
 }
 
-// عرض تفاصيل فاتورة محددة
+
 public function show($id)
 {
-    // جلب بيانات الفاتورة الأساسية
+
     $purchase = DB::table('purchases')
         ->join('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
         ->join('warehouses', 'purchases.warehouse_id', '=', 'warehouses.id')
@@ -135,7 +138,7 @@ public function show($id)
         ->select('purchases.*', 'suppliers.name as supplier_name', 'warehouses.name as warehouse_name')
         ->first();
 
-    // جلب العناصر المرتبطة بهذه الفاتورة
+
     $items = DB::table('purchase_items')
         ->join('products', 'purchase_items.product_id', '=', 'products.id')
         ->where('purchase_items.purchase_id', $id)

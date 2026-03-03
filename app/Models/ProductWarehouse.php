@@ -9,8 +9,7 @@ class ProductWarehouse extends Model
 {
     use HasFactory;
 
-    // هذا السطر هو المفتاح لحل المشكلة 
-    // يخبر لارافل أن يستخدم اسم الجدول الفردي الموجود في قاعدة بياناتك
+
     protected $table = 'product_warehouse'; 
 
     protected $fillable = [
@@ -27,7 +26,7 @@ class ProductWarehouse extends Model
 
     public function warehouse()
     {
-        // تأكد أن الموديل هنا اسمه Warehouse وليس Warehouses
-        return $this->belongsTo(Warehouse::class); 
+
+        return $this->belongsTo(Warehouses::class); 
     }
 }

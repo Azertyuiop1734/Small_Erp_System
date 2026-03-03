@@ -20,6 +20,10 @@
             <span class="badge bg-primary">{{ $product->quantity }}</span>
         @endif
     </td>
+ <td>
+    {{ $product->boxes_count ?? 0 }}
+</td>
+
 
     <td class="text-success fw-bold">
         {{ number_format($product->selling_price, 2) }}

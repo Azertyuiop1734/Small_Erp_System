@@ -3,7 +3,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Warehouse;
 class Product extends Model
 {
     use HasFactory;
@@ -41,4 +41,13 @@ class Product extends Model
     {
         return $this->hasMany(PurchaseItem::class);
     }
+    public function warehouses()
+{
+    return $this->belongsToMany(
+        Warehouses::class,
+        'product_warehouse',
+        'product_id',
+        'warehouse_id'
+    )->withPivot('quantity');
+}
 }

@@ -9,7 +9,15 @@ class PurchaseItem extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['purchase_id','product_id','quantity','price','total'];
+  protected $fillable = [
+        'purchase_id',
+        'product_id',
+        'quantity',
+        'price',
+        'total',
+        'boxes_count',    // تأكد من إضافة هذا السطر
+        'units_per_box',   // تأكد من إضافة هذا السطر
+    ];
 
     public function purchase()
     {

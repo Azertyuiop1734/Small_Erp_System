@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    // عرض صفحة إنشاء عامل
+   
     public function create()
     {
         return view('admin.users.create');
     }
 
-    // حفظ العامل في قاعدة البيانات
+   
     public function store(Request $request)
     {
         $request->validate([
@@ -29,7 +29,7 @@ class UserController extends Controller
             'hire_date' => 'nullable|date'
         ]);
 
-        // جلب role الخاص بـ Worker
+       
         $workerRole = Role::where('role_name', 'Worker')->first();
 
         User::create([

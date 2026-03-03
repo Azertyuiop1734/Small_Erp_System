@@ -63,7 +63,9 @@
                                 <tr class="bg-gray-50 border-b border-gray-100">
                                     <th class="p-4 font-bold text-gray-600">المنتج</th>
                                     <th class="p-4 font-bold text-gray-600 text-center">الباركود</th>
-                                    <th class="p-4 font-bold text-gray-600 text-center">الكمية</th>
+                                    <th class="p-4 font-bold text-gray-600 text-center">الكميةالكلية</th>
+                                    <th class="p-4 font-bold text-gray-600 text-center">عدد الصناديق</th>
+                                    <th class="p-4 font-bold text-gray-600 text-center">عدد الوحدات</th>
                                     <th class="p-4 font-bold text-gray-600 text-center">السعر</th>
                                     <th class="p-4 font-bold text-gray-600 text-left">الإجمالي</th>
                                 </tr>
@@ -74,6 +76,8 @@
                                     <td class="p-4 font-bold text-gray-800">{{ $item->product_name }}</td>
                                     <td class="p-4 text-center font-mono text-sm text-gray-500">{{ $item->barcode }}</td>
                                     <td class="p-4 text-center font-bold">{{ $item->quantity }}</td>
+                                    <td class="p-4 text-center font-bold">{{ $item->boxes_count }}</td>
+                                    <td class="p-4 text-center font-bold">{{ $item->units_per_box }}</td>
                                     <td class="p-4 text-center text-gray-600">{{ number_format($item->price, 2) }}</td>
                                     <td class="p-4 text-left font-black text-blue-600">{{ number_format($item->total, 2) }}</td>
                                 </tr>

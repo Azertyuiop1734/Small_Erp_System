@@ -10,7 +10,7 @@ class ProductController extends Controller
 {
     public function create()
     {
-        // جلب البيانات لعرضها في القوائم المنسدلة (Dropdowns)
+   
         $categories = DB::table('categories')->get();
        
         $warehouses = DB::table('warehouses')->get();
@@ -21,7 +21,6 @@ class ProductController extends Controller
     public function store(Request $request)
     {
 
-        // 1. التحقق من البيانات بدقة
         $request->validate([
             'name' => 'required|string|max:255',
             'barcode' => 'required|unique:products,barcode',
@@ -36,13 +35,13 @@ class ProductController extends Controller
 
         try {
             DB::transaction(function () use ($request) {
-                // معالجة الصورة
+             
                 $imagePath = null;
                 if ($request->hasFile('image')) {
                     $imagePath = $request->file('image')->store('products', 'public');
                 }
 
-                // أ. الإدخال في جدول المنتجات
+          
                 $productId = DB::table('products')->insertGetId([
                     'name' => $request->name,
                     'barcode' => $request->barcode,
@@ -56,7 +55,7 @@ class ProductController extends Controller
                     'updated_at' => now(),
                 ]);
 
-                // ب. الإدخال في جدول الربط (التوافق مع ملف SQL الخاص بك)
+            
                 DB::table('product_warehouse')->insert([
                     'product_id' => $productId,
                     'warehouse_id' => $request->warehouse_id,
@@ -69,7 +68,7 @@ class ProductController extends Controller
 
             return redirect()->back()->with('success', 'تم تسجيل المنتج بنجاح في النظام والمخزن.');
         } catch (\Exception $e) {
-            // في حال حدوث خطأ، سيظهر لك السبب التقني بالضبط
+     
             return redirect()->back()->with('error_message', 'فشل الحفظ: ' . $e->getMessage());
         }
     }
@@ -79,23 +78,25 @@ class ProductController extends Controller
             $warehouses = DB::table('warehouses')->get();
 
             $query = DB::table('products')
-                // نستخدم leftJoin لضمان ظهور المنتج حتى لو لم يربط بمخزن بعد
+             
                 ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
                 ->leftJoin('product_warehouse', 'products.id', '=', 'product_warehouse.product_id')
                 ->leftJoin('warehouses', 'product_warehouse.warehouse_id', '=', 'warehouses.id')
                 ->select(
                     'products.id',
-                    'products.name as product_name', // تسمية مستعارة لتجنب التداخل
+                    'products.name as product_name', 
                     'products.barcode',
-                    'products.image',
+                    'products.image',                  
                     'products.selling_price',
                     'categories.category_name',
                     'warehouses.name as warehouse_name',
                     'product_warehouse.quantity',
+                     'product_warehouse.boxes_count',
+                    'product_warehouse.units_per_box',
                     'product_warehouse.warehouse_id'
                 );
 
-            // 3. البحث بالاسم أو الباركود (تأكد من استخدام اسم الجدول)
+          
             if ($request->filled('search_name')) {
                 $searchTerm = '%' . $request->search_name . '%';
                 $query->where(function ($q) use ($searchTerm) {
@@ -104,12 +105,12 @@ class ProductController extends Controller
                 });
             }
 
-            // 4. البحث بالمخزن
+          
             if ($request->filled('warehouse_id')) {
                 $query->where('warehouses.id', $request->warehouse_id);
             }
 
-            // الترتيب حسب أحدث المنتجات المضافة
+        
             $products = $query
                 ->orderBy('products.id', 'desc')
                 ->paginate(10);
@@ -124,16 +125,16 @@ class ProductController extends Controller
     public function destroy($id)
     {
         try {
-            // البحث عن المنتج
+           
             $product = DB::table('products')->where('id', $id)->first();
 
             if ($product) {
-                // حذف الصورة من المجلد الفيزيائي إذا كانت موجودة
+            
                 if ($product->image) {
                     Storage::disk('public')->delete($product->image);
                 }
 
-                // حذف المنتج (سيتم حذف سجلات المخزن تلقائياً بسبب ON DELETE CASCADE في قاعدة بياناتك)
+               
                 DB::table('products')->where('id', $id)->delete();
 
                 return redirect()->back()->with('success', 'تم حذف المنتج وكافة بياناته المخزنية بنجاح.');
@@ -144,7 +145,7 @@ class ProductController extends Controller
             return redirect()->back()->with('error_message', 'فشل الحذف: ' . $e->getMessage());
         }
     }
-    // 1. دالة عرض صفحة التعديل
+  
     public function edit($id)
     {
         $product = DB::table('products')->where('id', $id)->first();
@@ -156,7 +157,7 @@ class ProductController extends Controller
         $categories = DB::table('categories')->get();
         
 
-        // جلب بيانات المخزن المرتبط بهذا المنتج حالياً
+      
         $currentStock = DB::table('product_warehouse')
             ->where('product_id', $id)
             ->first();
@@ -164,10 +165,10 @@ class ProductController extends Controller
         return view('admin.stores.edit_product', compact('product', 'categories', 'currentStock'));
     }
 
-    // 2. دالة حفظ التعديلات
+ 
     public function update(Request $request, $id)
     {
-        // 1. التحقق من البيانات
+       
         $request->validate([
             'name' => 'required|string|max:255',
             
@@ -175,7 +176,7 @@ class ProductController extends Controller
         ]);
 
         try {
-            // 2. تنفيذ عملية التحديث
+           
             $updated = DB::table('products')
                 ->where('id', $id)
                 ->update([
@@ -184,10 +185,10 @@ class ProductController extends Controller
                     
                     
                     'selling_price' => $request->selling_price,
-                    'updated_at' => now(), // مهم جداً لتحديث وقت العملية
+                    'updated_at' => now(), 
                 ]);
 
-            // 3. إعادة التوجيه مع رسالة نجاح
+        
             return redirect()->route('products.index')->with('success', 'تم تحديث بيانات المنتج بنجاح!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error_message', 'حدث خطأ أثناء التحديث: ' . $e->getMessage());
