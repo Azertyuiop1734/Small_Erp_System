@@ -25,7 +25,7 @@
         <div class="bg-blue-500 p-2 rounded-lg shadow-[0_0_15px_rgba(59,130,246,0.5)]">
             <i class="fas fa-shopping-cart text-white text-xl"></i>
         </div>
-        <span class="font-bold text-xl tracking-wider uppercase">Pos System</span>
+        <span class="font-bold text-xl tracking-wider uppercase">Erp System</span>
     </div>
 
     <div class="login-card w-full mx-auto p-8 rounded-[2rem] shadow-2xl max-w-md">
