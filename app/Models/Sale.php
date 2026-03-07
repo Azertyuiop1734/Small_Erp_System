@@ -26,7 +26,7 @@ class Sale extends Model
 
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(Warehouses::class);
     }
 
     public function saleItems()

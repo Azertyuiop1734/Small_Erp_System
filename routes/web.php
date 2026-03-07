@@ -46,8 +46,23 @@ Route::post('/admin/users/store', [UserController::class, 'store'])
     ->name('users.store');
     
 Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
+    return view('admin.index1');
 })->name('admin.dashboard');
+
+Route::get('/users', [UserController::class, 'index'])->name('users.index');
+Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+Route::get('/attendance', [UserController::class, 'index1'])->name('attendance.index');
+// مسار صفحة مبيعات الموظف
+Route::get('/users/{id}/sales', [UserController::class, 'salesInfo'])->name('users.sales');
+// مسار جلب تفاصيل الفاتورة (للسويت أليرت)
+Route::get('/admin/invoices/{id}', [UserController::class, 'invoiceDetails']);
+// مسار لعرض قائمة كل التقارير
+Route::get('/admin/reports', [UserController::class,'index2'])->name('reports.index');
+// مسار لعرض تقارير مستخدم معين فقط
+Route::get('/admin/users/{id}/reports', [UserController::class, 'userReports'])->name('reports.user');
+Route::delete('/reports/{id}', [UserController::class, 'destroy2'])->name('reports.destroy');
 
 
 //------------------------------------
