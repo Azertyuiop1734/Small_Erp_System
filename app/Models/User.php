@@ -9,8 +9,7 @@ class User extends Authenticatable
     use HasFactory;
 
     protected $fillable = [
-        'name', 'email', 'password', 'role_id', 'warehouse_id', 
-        'salary', 'hire_date', 'status'
+        'name', 'email','details', 'image', 'password', 'role_id', 'warehouse_id', 'salary', 'hire_date', 'status'
     ];
 
  
@@ -22,7 +21,7 @@ class User extends Authenticatable
  
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class);
+        return $this->belongsTo(Warehouses::class);
     }
 
     public function sales()

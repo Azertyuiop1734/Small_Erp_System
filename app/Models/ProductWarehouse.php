@@ -9,7 +9,15 @@ class ProductWarehouse extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['product_id','warehouse_id','quantity','minimum_stock'];
+
+    protected $table = 'product_warehouse'; 
+
+    protected $fillable = [
+        'product_id',
+        'warehouse_id',
+        'quantity',
+        'minimum_stock'
+    ];
 
     public function product()
     {
@@ -18,7 +26,7 @@ class ProductWarehouse extends Model
 
     public function warehouse()
     {
-        return $this->belongsTo(Warehouse::class);
+
+        return $this->belongsTo(Warehouses::class); 
     }
 }
-
