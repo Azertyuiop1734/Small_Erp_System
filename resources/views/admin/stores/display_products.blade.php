@@ -2,6 +2,7 @@
 <html lang="ar" dir="rtl">
 
 <head>
+    <script src="https://cdn.tailwindcss.com"></script>
     <meta charset="UTF-8">
     <title>قائمة المنتجات والمخزون</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
@@ -32,7 +33,57 @@
 </head>
 
 <body class="p-4">
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4 rtl:space-x-reverse">
+        <div class="p-4 bg-blue-50 rounded-xl text-blue-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+        </div>
+        <div>
+            <p class="text-3xl font-bold text-gray-800">{{ $stats['total_products'] }}</p>
+            <p class="text-sm text-gray-500 font-medium">إجمالي المنتجات</p>
+        </div>
+    </div>
 
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4 rtl:space-x-reverse">
+        <div class="p-4 bg-emerald-50 rounded-xl text-emerald-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+        </div>
+        <div>
+            <p class="text-3xl font-bold text-gray-800">{{ $stats['warehouses'] }}</p>
+            <p class="text-sm text-gray-500 font-medium">المستودعات</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4 rtl:space-x-reverse">
+        <div class="p-4 bg-amber-50 rounded-xl text-amber-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+        </div>
+        <div>
+            <p class="text-3xl font-bold text-gray-800">{{ $stats['low_stock'] }}</p>
+            <p class="text-sm text-gray-500 font-medium">مخزون منخفض</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center space-x-4 rtl:space-x-reverse">
+        <div class="p-4 bg-rose-50 rounded-xl text-rose-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <div>
+            <p class="text-3xl font-bold text-gray-800">{{ $stats['out_of_stock'] }}</p>
+            <p class="text-sm text-gray-500 font-medium">نفذت الكمية</p>
+        </div>
+    </div>
+
+</section>
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="text-dark fw-bold">📦 قائمة المنتجات والمخازن</h2>

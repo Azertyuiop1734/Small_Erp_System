@@ -72,56 +72,89 @@ class ProductController extends Controller
             return redirect()->back()->with('error_message', 'فشل الحفظ: ' . $e->getMessage());
         }
     }
-    public function index(Request $request)
-    {
-        try {
-            $warehouses = DB::table('warehouses')->get();
+  public function index(Request $request)
+{
+    try {
+        // 1. جلب المستودعات
+        $warehouses = DB::table('warehouses')->get();
 
-            $query = DB::table('products')
-             
-                ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
-                ->leftJoin('product_warehouse', 'products.id', '=', 'product_warehouse.product_id')
-                ->leftJoin('warehouses', 'product_warehouse.warehouse_id', '=', 'warehouses.id')
-                ->select(
-                    'products.id',
-                    'products.name as product_name', 
-                    'products.barcode',
-                    'products.image',                  
-                    'products.selling_price',
-                    'categories.category_name',
-                    'warehouses.name as warehouse_name',
-                    'product_warehouse.quantity',
-                     'product_warehouse.boxes_count',
-                    'product_warehouse.units_per_box',
-                    'product_warehouse.warehouse_id'
-                );
-
-          
-            if ($request->filled('search_name')) {
-                $searchTerm = '%' . $request->search_name . '%';
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->where('products.name', 'like', $searchTerm)
-                        ->orWhere('products.barcode', 'like', $searchTerm);
-                });
-            }
-
-          
-            if ($request->filled('warehouse_id')) {
-                $query->where('warehouses.id', $request->warehouse_id);
-            }
-
+        // --- بداية قسم الإحصائيات ---
         
-            $products = $query
-                ->orderBy('products.id', 'desc')
-                ->paginate(10);
-            if ($request->ajax()) {
-                return view('admin.stores.products_table', compact('products'))->render();
-            }
-            return view('admin.stores.display_products', compact('products', 'warehouses'));
-        } catch (\Exception $e) {
-            return "حدث خطأ في الاستعلام: " . $e->getMessage();
+        // إجمالي عدد المنتجات الفريدة
+        $totalProductsCount = DB::table('products')->count();
+
+        // عدد المستودعات
+        $warehousesCount = $warehouses->count();
+
+        // المنتجات قليلة المخزون (مثلاً أقل من 10 قطع)
+        $lowStockCount = DB::table('product_warehouse')
+            ->where('quantity', '>', 0)
+            ->where('quantity', '<=', 10) // يمكنك تعديل الرقم 10
+            ->count();
+
+        // المنتجات المنتهية من المخزون (0 أو أقل)
+        $outOfStockCount = DB::table('product_warehouse')
+            ->where('quantity', '<=', 0)
+            ->count();
+            
+        // تجميع الإحصائيات في مصفوفة لسهولة التعامل
+        $stats = [
+            'total_products' => $totalProductsCount,
+            'warehouses'     => $warehousesCount,
+            'low_stock'      => $lowStockCount,
+            'out_of_stock'   => $outOfStockCount,
+        ];
+
+        // --- نهاية قسم الإحصائيات ---
+
+        // الاستعلام الأساسي للمنتجات
+        $query = DB::table('products')
+            ->leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->leftJoin('product_warehouse', 'products.id', '=', 'product_warehouse.product_id')
+            ->leftJoin('warehouses', 'product_warehouse.warehouse_id', '=', 'warehouses.id')
+            ->select(
+                'products.id',
+                'products.name as product_name', 
+                'products.barcode',
+                'products.image',                  
+                'products.selling_price',
+                'categories.category_name',
+                'warehouses.name as warehouse_name',
+                'product_warehouse.quantity',
+                'product_warehouse.boxes_count',
+                'product_warehouse.units_per_box',
+                'product_warehouse.warehouse_id'
+            );
+
+        // البحث بالاسم أو الباركود
+        if ($request->filled('search_name')) {
+            $searchTerm = '%' . $request->search_name . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('products.name', 'like', $searchTerm)
+                    ->orWhere('products.barcode', 'like', $searchTerm);
+            });
         }
+
+        // التصفية حسب المستودع
+        if ($request->filled('warehouse_id')) {
+            $query->where('warehouses.id', $request->warehouse_id);
+        }
+
+        $products = $query
+            ->orderBy('products.id', 'desc')
+            ->paginate(10);
+
+        if ($request->ajax()) {
+            return view('admin.stores.products_table', compact('products'))->render();
+        }
+
+        // إرسال المصفوفة stats إلى الصفحة
+        return view('admin.stores.display_products', compact('products', 'warehouses', 'stats'));
+
+    } catch (\Exception $e) {
+        return "حدث خطأ في الاستعلام: " . $e->getMessage();
     }
+}
     public function destroy($id)
     {
         try {

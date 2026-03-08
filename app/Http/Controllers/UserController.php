@@ -19,7 +19,12 @@ class UserController extends Controller
         $warehouses = Warehouses::all();
         return view('admin.human_management.create', compact('warehouses'));
     }
-
+ public function createAdmin()
+    {
+        // جلب جميع المخازن لعرضها في القائمة المنسدلة
+       
+        return view('admin.createAdmin');
+    }
    public function store(Request $request)
 {
     $request->validate([
@@ -63,7 +68,26 @@ class UserController extends Controller
 
     return redirect()->back()->with('success', 'Worker created successfully with image and details.');
 }
+public function storeAdmin(Request $request)
+{
+    $request->validate([
+        'name' => 'required',
+        'email' => 'required|email|unique:users',
+        'password' => 'required|min:6',
+    ]);
 
+    $adminRole = Role::where('role_name', 'Admin')->first();
+
+    User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role_id' => $adminRole->id,
+        'status' => 'active'
+    ]);
+
+    return redirect()->back()->with('success', 'Admin created successfully');
+}
 
 public function index()
 {

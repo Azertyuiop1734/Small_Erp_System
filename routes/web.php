@@ -28,8 +28,10 @@ Route::get('/admin/dashboard', function () {
 Route::get('/worker/dashboard', function () {
     return "صفحة العامل";
 })->name('worker.dashboard');
-
-
+Route::get('/admin/users/createAdmin', [UserController::class, 'createAdmin'])->name('users.create');
+Route::post('/create-admin', [UserController::class, 'storeAdmin'])->name('admin.store');
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])
+    ->name('admin.dashboard');
 
 //--------------------------------------
 
@@ -38,17 +40,12 @@ Route::get('/worker/dashboard', function () {
 //ادارة الموارد البشرية 
 
 // صفحة إنشاء عامل
-Route::get('/admin/users/create', [UserController::class, 'create'])
-    ->name('users.create');
+Route::get('/admin/users/create', [UserController::class, 'create'])->name('users.create');
 
 // حفظ العامل
-Route::post('/admin/users/store', [UserController::class, 'store'])
-    ->name('users.store');
-    
-Route::get('/admin/dashboard', function () {
-    return view('admin.index1');
-})->name('admin.dashboard');
-
+Route::post('/admin/users/store', [UserController::class, 'store'])->name('users.store');
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])
+    ->name('admin.dashboard');
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
 Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
