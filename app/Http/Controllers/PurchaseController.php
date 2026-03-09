@@ -40,7 +40,7 @@ class PurchaseController extends Controller
         // 2. إنشاء رأس الفاتورة
         $purchase = Purchase::create([
             'supplier_id' => $request->supplier_id,
-            'user_id' => auth()->id() ?? 2, 
+            'user_id' => auth()->id() ?? 1, 
             'warehouse_id' => $request->warehouse_id,
             'total_amount' => $request->total_amount,
             'paid_amount' => $request->paid_amount,
