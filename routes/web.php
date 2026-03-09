@@ -7,6 +7,7 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\ExpenseController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -146,3 +147,7 @@ Route::get('/admin/categories', [CategoryController::class, 'index'])->name('cat
 Route::get('/admin/categories/create', [CategoryController::class, 'create'])->name('categories.create');
 Route::post('/admin/categories/store', [CategoryController::class, 'store'])->name('categories.store');
 Route::get('/admin/categories/delete/{id}', [CategoryController::class, 'destroy'])->name('categories.delete');
+//------------------------------------------------
+
+
+Route::get('/expenses', [ExpenseController::class, 'index']);
