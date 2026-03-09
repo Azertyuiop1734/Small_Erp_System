@@ -1,110 +1,311 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="ltr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تفاصيل الفاتورة #{{ $purchase->id }}</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <title>Invoice Details</title>
+
     <style>
-        body { font-family: 'Cairo', sans-serif; }
-        @media print {
-            .no-print { display: none; }
-            body { background: white; padding: 0; }
-            .shadow-xl { shadow: none; border: 1px solid #eee; }
+        body {
+            background-color: #04080f;
+            color: #e5e7eb;
+            font-family: sans-serif;
+        }
+
+        .card {
+            background-color: #0a1120;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .accent-blue {
+            color: #3b82f6;
+        }
+
+        .accent-green {
+            color: #10b981;
         }
     </style>
+
 </head>
-<body class="bg-gray-100 py-10">
 
-    <div class="max-w-4xl mx-auto p-4">
-        
-        <div class="mb-6 no-print">
-            <a href="{{ route('purchases.index') }}" class="text-gray-500 hover:text-blue-600 flex items-center font-bold transition">
-                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 12H5m7 7l-7-7 7-7"></path></svg>
-                العودة لقائمة المشتريات
-            </a>
+<body class="p-6">
+
+    <header class="flex justify-between items-center mb-8">
+
+        <div class="flex items-center gap-2">
+            <div class="bg-blue-500 p-1.5 rounded-lg">
+                <i class="fas fa-shopping-cart text-white text-sm"></i>
+            </div>
+
+            <div>
+                <h1 class="font-bold text-sm">ERP System</h1>
+                <p class="text-[10px] text-gray-500 uppercase">Management</p>
+            </div>
         </div>
 
-        <div class="bg-white shadow-2xl rounded-3xl overflow-hidden border border-gray-100">
-            <div class="bg-gray-900 p-8 text-white flex justify-between items-center">
-                <div>
-                    <h2 class="text-3xl font-black">تفاصيل الفاتورة</h2>
-                    <p class="text-gray-400 mt-1 uppercase tracking-widest text-sm">رقم المرجع: #{{ $purchase->id }}</p>
-                </div>
-                <div class="text-left">
-                    <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-xl font-bold text-sm">
-                        حالة الفاتورة: مكتملة
+        <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-400">Admin</span>
+            <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold">
+                A
+            </div>
+        </div>
+
+    </header>
+
+
+    <main class="max-w-7xl mx-auto">
+
+        <div class="flex flex-wrap justify-between items-end mb-6 gap-4">
+
+            <div class="space-y-4">
+
+                <a href="{{ route('purchases.index') }}"
+                    class="bg-[#161f32] text-xs px-4 py-2 rounded-lg border border-gray-700 hover:bg-gray-800 transition">
+
+                    <i class="fas fa-chevron-left mr-2"></i>
+                    Back to Invoices
+
+                </a>
+
+                <div class="flex items-center gap-3">
+
+                    <h2 class="text-3xl font-serif font-bold">
+                        Invoice Details
+                    </h2>
+
+                    <span class="bg-blue-900/30 text-blue-400 text-xs px-3 py-1 rounded-full border border-blue-800/50">
+
+                        # {{ $purchase->id }}
+
                     </span>
+
+                    <span class="bg-green-900/30 text-green-400 text-xs px-3 py-1 rounded-full border border-green-800/50 flex items-center gap-1">
+
+                        <span class="w-1.5 h-1.5 bg-green-400 rounded-full"></span>
+
+                        Paid
+
+                    </span>
+
                 </div>
+
+                <p class="text-gray-500 text-xs">
+
+                    {{ \Carbon\Carbon::parse($purchase->purchase_date)->format('Y/m/d') }}
+
+                </p>
+
             </div>
 
-            <div class="p-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100">
-                        <p class="text-gray-400 text-xs mb-1 font-bold uppercase">المورد</p>
-                        <p class="text-gray-800 font-extrabold text-lg">{{ $purchase->supplier_name }}</p>
-                    </div>
-                    <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100">
-                        <p class="text-gray-400 text-xs mb-1 font-bold uppercase">المخزن المستلم</p>
-                        <p class="text-gray-800 font-extrabold text-lg">{{ $purchase->warehouse_name }}</p>
-                    </div>
-                    <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100">
-                        <p class="text-gray-400 text-xs mb-1 font-bold uppercase">تاريخ الشراء</p>
-                        <p class="text-gray-800 font-extrabold text-lg">{{ \Carbon\Carbon::parse($purchase->purchase_date)->format('Y/m/d') }}</p>
-                    </div>
-                </div>
 
-                <div class="mb-10">
-                    <h3 class="text-xl font-black text-gray-800 mb-4 border-r-4 border-blue-600 pr-3">الأصناف المشتراة</h3>
-                    <div class="overflow-hidden rounded-2xl border border-gray-100">
-                        <table class="w-full text-right">
-                            <thead>
-                                <tr class="bg-gray-50 border-b border-gray-100">
-                                    <th class="p-4 font-bold text-gray-600">المنتج</th>
-                                    <th class="p-4 font-bold text-gray-600 text-center">الباركود</th>
-                                    <th class="p-4 font-bold text-gray-600 text-center">الكميةالكلية</th>
-                                    <th class="p-4 font-bold text-gray-600 text-center">عدد الصناديق</th>
-                                    <th class="p-4 font-bold text-gray-600 text-center">عدد الوحدات</th>
-                                    <th class="p-4 font-bold text-gray-600 text-center">السعر</th>
-                                    <th class="p-4 font-bold text-gray-600 text-left">الإجمالي</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-50">
-                                @foreach($items as $item)
-                                <tr class="hover:bg-gray-50/50 transition">
-                                    <td class="p-4 font-bold text-gray-800">{{ $item->product_name }}</td>
-                                    <td class="p-4 text-center font-mono text-sm text-gray-500">{{ $item->barcode }}</td>
-                                    <td class="p-4 text-center font-bold">{{ $item->quantity }}</td>
-                                    <td class="p-4 text-center font-bold">{{ $item->boxes_count }}</td>
-                                    <td class="p-4 text-center font-bold">{{ $item->units_per_box }}</td>
-                                    <td class="p-4 text-center text-gray-600">{{ number_format($item->price, 2) }}</td>
-                                    <td class="p-4 text-left font-black text-blue-600">{{ number_format($item->total, 2) }}</td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                            <tfoot>
-                                <tr class="bg-blue-50/50">
-                                    <td colspan="4" class="p-5 text-left font-bold text-gray-700 text-lg">المجموع الكلي للفاتورة:</td>
-                                    <td class="p-5 text-left font-black text-2xl text-blue-700">
-                                        {{ number_format($purchase->total_amount, 2) }} <small class="text-xs">د.ج</small>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
+            <div class="flex gap-3">
 
-                <div class="flex gap-4 no-print">
-                    <button onclick="window.print()" class="flex-1 bg-gray-800 hover:bg-black text-white py-4 rounded-2xl font-black transition duration-200 flex items-center justify-center shadow-lg shadow-gray-200">
-                        <svg class="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        طباعة الفاتورة
-                    </button>
-                    <button class="px-8 bg-blue-50 text-blue-600 font-bold rounded-2xl hover:bg-blue-100 transition">تحميل PDF</button>
-                </div>
+                <button onclick="window.print()"
+                    class="bg-[#161f32] text-sm px-5 py-2.5 rounded-xl border border-gray-700 flex items-center gap-2">
+
+                    <i class="fas fa-print"></i>
+                    Print
+
+                </button>
+
             </div>
+
         </div>
-    </div>
+
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+
+            <div class="lg:col-span-2 space-y-6">
+
+
+                <div class="card p-6 rounded-[1.5rem]">
+
+                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-6 border-b border-gray-800 pb-2">
+
+                        Invoice Information
+
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-8">
+
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase mb-1">Invoice Number</p>
+                            <p class="accent-blue font-bold">
+
+                                # {{ $purchase->id }}
+
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase mb-1">Purchase Date</p>
+
+                            <p class="text-sm font-semibold">
+
+                                {{ \Carbon\Carbon::parse($purchase->purchase_date)->format('Y/m/d') }}
+
+                            </p>
+
+                        </div>
+
+
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase">Supplier</p>
+
+                            <p class="text-sm font-bold">
+
+                                {{ $purchase->supplier_name }}
+
+                            </p>
+
+                        </div>
+
+
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase">Receiving Warehouse</p>
+
+                            <p class="text-sm font-bold">
+
+                                {{ $purchase->warehouse_name }}
+
+                            </p>
+
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase mb-1">Paid Amount</p>
+                            <p class="text-sm font-bold text-green-400">
+                                {{ number_format($purchase->paid_amount, 2) }} DZD
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase mb-1">Remaining Amount</p>
+                            <p class="text-sm font-bold text-red-400">
+                                {{ number_format($purchase->remaining_amount, 2) }} DZD
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+
+
+
+                <div class="card p-6 rounded-[1.5rem]">
+
+                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-6 border-b border-gray-800 pb-2">
+
+                        Purchased Products
+
+                    </h3>
+
+
+                    <table class="w-full text-left">
+
+                        <thead>
+
+                            <tr class="text-[10px] text-gray-500 uppercase">
+
+                                <th class="pb-4">Product</th>
+                                <th class="pb-4">Barcode</th>
+                                <th class="pb-4 text-center">Qty</th>
+                                <th class="pb-4">Unit Price</th>
+                                <th class="pb-4">Total</th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody class="text-sm">
+
+                            @foreach($items as $item)
+
+                            <tr class="border-t border-gray-800/50">
+
+                                <td class="py-4">
+
+                                    {{ $item->product_name }}
+
+                                </td>
+
+                                <td class="text-gray-500">
+
+                                    {{ $item->barcode }}
+
+                                </td>
+
+                                <td class="text-center">
+
+                                    {{ $item->quantity }}
+
+                                </td>
+
+                                <td>
+
+                                    {{ number_format($item->price,2) }} DZD
+
+                                </td>
+
+                                <td class="accent-green font-bold">
+
+                                    {{ number_format($item->total,2) }} DZD
+
+                                </td>
+
+                            </tr>
+
+                            @endforeach
+
+                        </tbody>
+
+                    </table>
+
+
+                    <div class="mt-6 pt-4 border-t border-gray-800 flex justify-end items-center gap-4">
+
+                        <span class="text-gray-500 text-xs">
+
+                            Invoice Total:
+
+                        </span>
+
+                        <span class="accent-green text-xl font-bold">
+
+                            {{ number_format($purchase->total_amount,2) }} DZD
+
+                        </span>
+                        <div class="mt-6 pt-4 border-t border-gray-800 space-y-2">
+                            <div class="flex justify-end items-center gap-4">
+                                <span class="text-gray-500 text-xs">Total Amount:</span>
+                                <span class="text-white font-bold">{{ number_format($purchase->total_amount, 2) }} DZD</span>
+                            </div>
+
+                            <div class="flex justify-end items-center gap-4">
+                                <span class="text-gray-500 text-xs">Paid:</span>
+                                <span class="text-green-500 font-bold">{{ number_format($purchase->paid_amount, 2) }} DZD</span>
+                            </div>
+
+                            <div class="flex justify-end items-center gap-4">
+                                <span class="text-gray-500 text-xs">Remaining:</span>
+                                <span class="text-red-500 font-bold">{{ number_format($purchase->remaining_amount, 2) }} DZD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
 
 </body>
+
 </html>
