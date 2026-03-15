@@ -24,6 +24,10 @@ class Sale extends Model
         return $this->belongsTo(Customer::class);
     }
 
+
+
+
+
     public function warehouse()
     {
         return $this->belongsTo(Warehouses::class);

@@ -174,6 +174,7 @@
         }
     });
 
+    
     // --- 3. معالجة الحفظ بـ SweetAlert ---
     const purchaseForm = document.getElementById('purchase-form');
     purchaseForm.addEventListener('submit', function(e) {
@@ -202,6 +203,7 @@
             }
         });
     });
+
 document.addEventListener('input', function(e) {
     const row = e.target.closest('.item-row');
     

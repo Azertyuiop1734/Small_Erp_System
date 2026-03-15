@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Attendance;
 use App\Models\Sale;
 use App\Models\Report;
+use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     public function create()
@@ -211,16 +212,43 @@ public function salesInfo($id) {
         compact('worker','sales','totalSalesCount','totalRevenue','totalProfit')
     );
 }
-public function index2() {
-    // We load the user, and then the warehouse BELONGING to that user
-    $reports = Report::with('user.warehouse')->orderBy('report_date', 'desc')->get();
-    return view('admin.human_management.reports', compact('reports'));
-}
-public function destroy2($id)
-{
-    $report = Report::findOrFail($id);
-    $report->delete();
 
-    return back()->with('success', 'Report deleted successfully.');
+public function profile()
+{
+    // جلب المستخدم الحالي مع علاقاته (الدور والمخزن)
+    $user = Auth::user()->load(['role', 'warehouse']);
+    
+    return view('worker.profile', compact('user'));
+}
+public function edit1()
+{
+    $user = Auth::user();
+    return view('worker.edit_profile', compact('user'));
+}
+
+public function update1(Request $request)
+{
+    $user = Auth::user();
+
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
+
+    // تحديث الاسم
+    $user->name = $request->name;
+
+    // تحديث الصورة إذا تم رفع صورة جديدة
+    if ($request->hasFile('image')) {
+        $path = $request->file('image')->store('users', 'public');
+        $user->image = $path;
+    }
+
+    // تحديث حقل الـ details (تجميع القيم مرة أخرى بتنسيق نصي)
+    $user->details = "Age: {$request->age}; Gender: {$request->gender}; Job: {$request->job}; Phone: {$request->phone}";
+
+    $user->save();
+
+    return redirect()->route('profile')->with('success', 'Profile updated successfully!');
 }
 }

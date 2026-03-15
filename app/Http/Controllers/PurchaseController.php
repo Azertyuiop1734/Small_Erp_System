@@ -113,16 +113,9 @@ class PurchaseController extends Controller
 
 public function index()
 {
-    $purchases = DB::table('purchases')
-    ->join('suppliers', 'purchases.supplier_id', '=', 'suppliers.id')
-    ->join('warehouses', 'purchases.warehouse_id', '=', 'warehouses.id')
-    ->select(
-        'purchases.*', 
-        'suppliers.name as supplier_name',   
-        'warehouses.name as warehouse_name' 
-    )
-    ->orderBy('purchases.created_at', 'desc')
-    ->get();
+    $purchases = Purchase::with(['supplier', 'warehouse'])
+        ->orderBy('created_at', 'desc')
+        ->get();
 
     return view('admin.stores.purchases', compact('purchases'));
 }

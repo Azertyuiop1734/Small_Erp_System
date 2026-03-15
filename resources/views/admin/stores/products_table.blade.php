@@ -1,46 +1,55 @@
 @foreach($products as $product)
-<tr>
-    <td>
-        @if($product->image)
-            <img src="{{ asset('storage/' . $product->image) }}" class="product-img border">
-        @else
-            <img src="https://via.placeholder.com/50" class="product-img">
-        @endif
-    </td>
+    @foreach($product->warehouses as $warehouse)
+        <tr>
+            <!-- الصورة -->
+            <td>
+                @if($product->image)
+                    <img src="{{ asset('storage/' . $product->image) }}" class="product-img border">
+                @else
+                    <img src="https://via.placeholder.com/50" class="product-img">
+                @endif
+            </td>
 
-    <td class="fw-bold">{{ $product->product_name }}</td>
-    <td><span class="badge bg-light text-dark border">{{ $product->barcode }}</span></td>
-    <td>{{ $product->category_name }}</td>
-    <td>{{ $product->warehouse_name }}</td>
+            <!-- اسم المنتج -->
+            <td class="fw-bold">{{ $product->name }}</td>
 
-    <td>
-        @if($product->quantity <= 5)
-            <span class="badge bg-danger">منخفض: {{ $product->quantity }}</span>
-        @else
-            <span class="badge bg-primary">{{ $product->quantity }}</span>
-        @endif
-    </td>
- <td>
-    {{ $product->boxes_count ?? 0 }}
-</td>
+            <!-- الباركود -->
+            <td><span class="badge bg-light text-dark border">{{ $product->barcode }}</span></td>
 
+            <!-- اسم القسم -->
+            <td>{{ $product->category->category_name ?? '-' }}</td>
 
-    <td class="text-success fw-bold">
-        {{ number_format($product->selling_price, 2) }}
-    </td>
+            <!-- اسم المخزن -->
+            <td>{{ $warehouse->name }}</td>
 
-   
+            <!-- المخزون المنخفض -->
+            <td>
+                @if(($warehouse->pivot->quantity ?? 0) <= 5)
+                    <span class="badge bg-danger">منخفض: {{ $warehouse->pivot->quantity ?? 0 }}</span>
+                @else
+                    <span class="badge bg-primary">{{ $warehouse->pivot->quantity ?? 0 }}</span>
+                @endif
+            </td>
 
-    <td>
-        <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ $product->id }})">
-            <i class="fas fa-trash"></i> حذف
-        </button>
-    </td>
+            <!-- عدد الصناديق -->
+            <td>{{ $warehouse->pivot->boxes_count ?? 0 }}</td>
 
-    <td>
-        <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-primary">
-            <i class="fas fa-edit"></i> تعديل
-        </a>
-    </td>
-</tr>
+            <!-- السعر -->
+            <td class="text-success fw-bold">{{ number_format($product->selling_price, 2) }}</td>
+
+            <!-- زر الحذف -->
+            <td>
+                <button type="button" class="btn btn-sm btn-danger" onclick="confirmDelete({{ $product->id }})">
+                    <i class="fas fa-trash"></i> حذف
+                </button>
+            </td>
+
+            <!-- زر التعديل -->
+            <td>
+                <a href="{{ route('products.edit', $product->id) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-edit"></i> تعديل
+                </a>
+            </td>
+        </tr>
+    @endforeach
 @endforeach
