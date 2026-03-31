@@ -12,7 +12,7 @@ use App\Http\Controllers\POSController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ReportController;
-
+use App\Http\Controllers\ForgotPasswordController;
 
 
 Route::get('/', function () {
@@ -40,10 +40,26 @@ Route::post('/create-admin', [UserController::class, 'storeAdmin'])->name('admin
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])
     ->name('admin.dashboard');
 
+
+
+Route::get('forgot-password', [ForgotPasswordController::class, 'showEmailForm'])->name('password.request');
+Route::post('forgot-password', [ForgotPasswordController::class, 'sendOtp'])->name('otp.send');
+
+Route::get('verify-otp', [ForgotPasswordController::class, 'showOtpForm'])->name('otp.verify.form');
+Route::post('verify-otp', [ForgotPasswordController::class, 'verifyOtp'])->name('otp.verify.submit');
+
+Route::get('reset-password', [ForgotPasswordController::class, 'showResetForm'])->name('otp.reset.form');
+Route::post('reset-password', [ForgotPasswordController::class, 'updatePassword'])->name('otp.reset.submit');
+
+
 //--------------------------------------
 
 
+Route::middleware(['auth'])->group(function() {
 
+
+
+//----------------------------
 //ادارة الموارد البشرية 
 
 Route::get('/admin/users/create', [UserController::class, 'create'])->name('users.create');
@@ -69,8 +85,6 @@ Route::put('/profile/update', [UserController::class, 'update1'])->name('profile
 
 
 //------------------------------------
-
-
 // ادارة الموردين
 Route::get('/admin/suppliers/add_suppliers', [SupplierController::class, 'create'])->name('suppliers.create');
 Route::post('/admin/suppliers/store', [SupplierController::class, 'store'])->name('suppliers.store');
@@ -98,6 +112,7 @@ Route::get('/inventory/low-stock', [ProductController::class, 'lowStock'])->name
 
 
 //-------------------------------
+//ادارة المشتريات الخاصة ب النضام
 
 Route::prefix('purchases')->group(function () {
     // لعرض صفحة إضافة مشتريات جديدة
@@ -115,6 +130,7 @@ Route::prefix('purchases')->group(function () {
 
 
 //--------------------
+//الصفحة الرئيسية
 Route::get('admin/index1', [DashboardController::class, 'index'])->name('dashboard.index');
 
 
@@ -122,28 +138,28 @@ Route::get('admin/index1', [DashboardController::class, 'index'])->name('dashboa
 
 
 //---------------------------------
-
+//ادااة الانواع 
 Route::get('/admin/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/admin/categories/create', [CategoryController::class, 'create'])->name('categories.create');
 Route::post('/admin/categories/store', [CategoryController::class, 'store'])->name('categories.store');
 Route::get('/admin/categories/delete/{id}', [CategoryController::class, 'destroy'])->name('categories.delete');
 
 
+
 //------------------------------------------------
-
-
-Route::middleware(['auth'])->group(function() {
+//ادارة نقاط البيع
     Route::get('/pos', [POSController::class, 'index'])->name('pos.index');
     Route::get('/product/{barcode}', [POSController::class, 'getProductByBarcode']);
     Route::post('/pos/add', [POSController::class, 'storeSale']);
     // انقل هذا السطر إلى الداخل هنا
     Route::get('/customers/search', [POSController::class, 'searchCustomers']);
     Route::get('/pos/print/{id}', [POSController::class, 'printInvoice'])->name('pos.print');
-});
+
 
 
 
 //---------------------------
+//ادارة الزبائن
 Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
 Route::get('/customers/{id}/history', [CustomerController::class, 'history'])->name('customers.history');
 Route::get('/sales/{id}/details', [CustomerController::class, 'saleDetails'])->name('sales.details');
@@ -155,18 +171,31 @@ Route::delete('/customers/{id}', [CustomerController::class, 'destroy'])->name('
 
 
 //-------------------------
-
+//ادارة المصاريف 
 Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
 Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
 Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
 
 //-----------------------------------------------
-
+//ادارة التقارير الخاصة ب العمال
 Route::get('/reports/create', [ReportController::class, 'create'])->name('reports.create');
 Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
 Route::get('/admin/reports', [ReportController::class,'index2'])->name('reports.index');
 Route::delete('/reports/{id}', [ReportController::class, 'destroy2'])->name('reports.destroy');
 
 //-----------------
+//ادارة المبيعات(عرض الفواتير )
 Route::get('/sales', [SaleController::class, 'index'])->name('sales.index');
 Route::get('/sales/{id}', [SaleController::class, 'show'])->name('sales.show');
+Route::post('/sales/update-payment/{id}', [App\Http\Controllers\SaleController::class, 'updatePayment'])->name('sales.updatePayment');
+
+//---------------------------------
+//الاحصائبات
+Route::get('/finance-dashboard', [App\Http\Controllers\StatisticsController::class, 'index'])->name('finance.dashboard');
+Route::get('/invoice-dashboard', [App\Http\Controllers\StatisticsController::class, 'index1'])->name('invoice.dashboard');
+Route::get('/late-payers', [App\Http\Controllers\StatisticsController::class, 'index2'])->name('late.payers');
+Route::get('/general_sales', [App\Http\Controllers\StatisticsController::class, 'index3'])->name('late.payers');
+Route::get('/product-analysis', [App\Http\Controllers\StatisticsController::class, 'index4'])->name('products.analysis');
+Route::get('/customers', [App\Http\Controllers\StatisticsController::class, 'index5'])->name('customers');
+});
+

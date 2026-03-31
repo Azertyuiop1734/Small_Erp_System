@@ -16,8 +16,8 @@ class SaleController extends Controller
         // جلب الفواتير مع علاقة المستخدم (البائع)
         // latest() تقوم بالترتيب حسب created_at تنازلياً
         $sales = Sale::with('user')
-                    ->latest()
-                    ->paginate(15); // استخدمنا paginate بدلاً من get لعرض الصفحات إذا زاد العدد
+            ->latest()
+            ->paginate(15); // استخدمنا paginate بدلاً من get لعرض الصفحات إذا زاد العدد
 
         return view('worker.display_invoices', compact('sales'));
     }
@@ -33,7 +33,7 @@ class SaleController extends Controller
            3. items.product: تفاصيل المنتجات داخل الفاتورة
         */
         // في دالة show داخل SaleController
-$sale = Sale::with(['user', 'warehouse', 'saleItems.product'])->findOrFail($id);
+        $sale = Sale::with(['user', 'warehouse', 'saleItems.product'])->findOrFail($id);
 
         return view('worker.display_details_of_invoices', compact('sale'));
     }
@@ -41,12 +41,28 @@ $sale = Sale::with(['user', 'warehouse', 'saleItems.product'])->findOrFail($id);
     /**
      * دالة إضافية (اختياري): عرض فواتير الموظف الحالي فقط
      */
-    public function mySales()
-    {
-        $sales = Sale::where('user_id', Auth::id())
-                    ->latest()
-                    ->paginate(10);
+public function updatePayment(Request $request, $id)
+{
+    // 1. جلب الفاتورة
+    $sale = \App\Models\Sale::findOrFail($id);
 
-        return view('sales.index', compact('sales'));
-    }
+    // 2. التحقق من القيمة المرسلة
+    $request->validate([
+        'paid_amount' => 'required|numeric|min:0',
+    ]);
+
+    $paid = (float) $request->paid_amount;
+    $total = (float) $sale->total_amount;
+    $remaining = $total - $paid;
+
+    // 3. التحديث الفعلي في قاعدة البيانات
+    $sale->update([
+        'paid_amount' => $paid,
+        'remaining_amount' => $remaining,
+        'status' => ($remaining <= 0) ? 'paid' : ($remaining < $total ? 'partial' : 'unpaid')
+    ]);
+
+    // 4. العودة للخلف مع رسالة نجاح
+    return back()->with('success', 'Invoice #' . $id . ' updated successfully!');
+}
 }
