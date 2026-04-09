@@ -2,14 +2,12 @@
 
 @section('content')
 <div class="container py-4">
-   <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4><i class="fas fa-user-clock text-primary"></i> Purchase History: {{ $customer->name }}</h4>
-    
-    {{-- التعديل هنا: استخدام دالة url()->previous() --}}
-    <a href="{{ url()->previous() }}" class="btn btn-outline-secondary btn-sm">
-        <i class="fas fa-arrow-left"></i> Back
-    </a>
-</div>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="fas fa-user-clock text-primary"></i> Purchase History: {{ $customer->name }}</h4>
+        <a href="{{ route('customers.index') }}" class="btn btn-outline-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
 
     <div class="row g-3 mb-4">
         <div class="col-md-4">

@@ -1,186 +1,239 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Log</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
-</head>
-<body class="bg-[#f8fafc] text-slate-800">
+@extends('layouts.app')
 
-<div class="min-h-screen p-4 md:p-10">
-    <div class="max-w-7xl mx-auto">
-        
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 gap-6">
-            <div class="relative">
-                <h2 class="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-4">
-                    <span class="flex items-center justify-center w-14 h-14 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-200 transition-transform hover:rotate-6">
-                        <i class="fa-solid fa-receipt"></i>
-                    </span>
-                    Company Expense Log
-                </h2>
-                <p class="text-slate-500 mt-2 ml-1 inline-block bg-white px-3 py-1 rounded-full text-sm border border-slate-100 shadow-sm">
-                    <i class="fa-solid fa-chart-line mr-1 text-blue-500"></i> Accurately track operational and warehouse expenses
-                </p>
+@section('title', 'سجل المصاريف والنفقات')
+
+@section('content')
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white dark:bg-[#0f172a] p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-600 dark:text-rose-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
             </div>
-            
-          
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                <div class="absolute -left-4 -top-4 w-24 h-24 bg-rose-50 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
-                <div class="flex items-center gap-5 relative">
-                    <div class="w-14 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                        <i class="fa-solid fa-wallet"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Total Expenses</p>
-                        <p class="text-2xl font-black text-slate-800 tracking-tighter mt-1">{{ number_format($expenses->sum('amount'), 2) }} <span class="text-sm font-medium text-slate-500">DZD</span></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                <div class="absolute -left-4 -top-4 w-24 h-24 bg-blue-50 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
-                <div class="flex items-center gap-5 relative">
-                    <div class="w-14 h-14 bg-blue-600 text-white rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                        <i class="fa-solid fa-boxes-stacked"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Warehouse Status</p>
-                        <p class="text-2xl font-black text-slate-800 mt-1">Active <span class="text-xs bg-emerald-100 text-emerald-600 px-2 py-1 rounded-lg">Online</span></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                <div class="absolute -left-4 -top-4 w-24 h-24 bg-emerald-50 rounded-full opacity-50 group-hover:scale-110 transition-transform"></div>
-                <div class="flex items-center gap-5 relative">
-                    <div class="w-14 h-14 bg-emerald-500 text-white rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                        <i class="fa-solid fa-calendar-day"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm font-bold text-slate-400 uppercase tracking-wider">Today's Date</p>
-                        <p class="text-2xl font-black text-slate-800 mt-1">{{ now()->format('d M, Y') }}</p>
-                    </div>
-                </div>
+            <div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">إجمالي المصاريف</p>
+                <p class="text-2xl font-black text-gray-900 dark:text-white font-mono">{{ number_format($expenses->sum('amount'), 2) }} <small class="text-xs">د.ج</small></p>
             </div>
         </div>
+    </div>
 
-        <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden relative">
-            <div class="p-6 border-b border-slate-50 flex justify-between items-center bg-white/50 backdrop-blur-md sticky top-0 z-10">
-                <h3 class="font-black text-slate-800 text-lg flex items-center gap-2">
-                    <i class="fa-solid fa-list-ul text-blue-600"></i>
-                    Detailed Data Table
-                </h3>
-            </div>
-
-            <div class="overflow-x-auto custom-scrollbar">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50/50">
-                            <th class="py-5 px-6 text-slate-500 font-bold text-xs uppercase text-left">Expense Item</th>
-                            <th class="py-5 px-6 text-slate-500 font-bold text-xs uppercase text-center">Amount</th>
-                            <th class="py-5 px-6 text-slate-500 font-bold text-xs uppercase text-left">Responsible</th>
-                            <th class="py-5 px-6 text-slate-500 font-bold text-xs uppercase text-center">Location/Warehouse</th>
-                            <th class="py-5 px-6 text-slate-500 font-bold text-xs uppercase text-center">Date</th>
-                            <th class="py-5 px-6 text-slate-500 font-bold text-xs uppercase text-left">Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        @forelse($expenses as $expense)
-                        <tr class="group hover:bg-blue-50/30 transition-all">
-                            <td class="py-5 px-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-2 h-10 bg-blue-100 rounded-full group-hover:bg-blue-600 transition-colors"></div>
-                                    <div>
-                                        <div class="font-black text-slate-800">{{ $expense->title }}</div>
-                                        <div class="text-[10px] text-slate-400 font-bold tracking-widest uppercase">Ref: #{{ $expense->id }}</div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="py-5 px-6 text-center">
-                                <span class="inline-block bg-rose-50 text-rose-600 px-4 py-2 rounded-xl font-black text-sm">
-                                    {{ number_format($expense->amount, 2) }} <span class="text-[10px]">DZD</span>
-                                </span>
-                            </td>
-                            <td class="py-5 px-6">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 border-2 border-white shadow-sm flex items-center justify-center font-black text-slate-500">
-                                        {{ mb_substr($expense->user->name, 0, 1) }}
-                                    </div>
-                                    <span class="font-bold text-slate-700">{{ $expense->user->name }}</span>
-                                </div>
-                            </td>
-                            <td class="py-5 px-6 text-center">
-                                @if($expense->user->warehouse)
-                                    <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg text-xs font-black border border-blue-100">
-                                        <i class="fa-solid fa-location-dot"></i> {{ $expense->user->warehouse->name }}
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1.5 bg-slate-100 text-slate-500 px-3 py-1.5 rounded-lg text-xs font-bold italic">
-                                        <i class="fa-solid fa-building-user"></i> HQ Administration
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="py-5 px-6 text-center">
-                                <div class="text-slate-600 text-sm font-bold flex items-center justify-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-slate-300"></span>
-                                    {{ $expense->expense_date }}
-                                </div>
-                            </td>
-                            <td class="py-5 px-6 max-w-[200px]">
-                                <div class="group/note relative cursor-default">
-                                    <p class="text-slate-400 text-xs italic truncate group-hover/note:text-slate-600">
-                                        {{ $expense->description ?? 'No additional notes' }}
-                                    </p>
-                                    @if($expense->description)
-                                    <div class="absolute hidden group-hover/note:block bg-slate-800 text-white text-[11px] p-3 rounded-xl shadow-2xl -top-12 left-0 z-50 w-48 leading-relaxed">
-                                        {{ $expense->description }}
-                                        <div class="absolute -bottom-1 left-4 w-2 h-2 bg-slate-800 rotate-45"></div>
-                                    </div>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="py-24 text-center">
-                                <div class="flex flex-col items-center">
-                                    <div class="w-32 h-32 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                                        <i class="fa-solid fa-inbox text-5xl text-slate-200"></i>
-                                    </div>
-                                    <h4 class="text-xl font-bold text-slate-400">No data found</h4>
-                                    <p class="text-slate-300 text-sm mt-1">Start by adding your first expense to the system.</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="p-6 bg-slate-50/50 border-t border-slate-50 flex justify-between items-center">
-                <p class="text-xs font-bold text-slate-400">Showing {{ $expenses->count() }} of {{ $expenses->count() }} entries</p>
-                <div class="flex gap-2">
-                    <button class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
-                    <button class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
-                </div>
-            </div>
+    <div class="bg-white dark:bg-[#0f172a] p-6 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all md:col-span-2 flex justify-between items-center">
+        <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">إدارة المصاريف</h2>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">تتبع كافة المصاريف التشغيلية للمؤسسة</p>
         </div>
-
+        <button onclick="openExpenseModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            إضافة مصاريف
+        </button>
     </div>
 </div>
 
-</body>
-</html>
+<div class="bg-white dark:bg-[#0f172a] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden transition-colors duration-300">
+    <div class="overflow-x-auto">
+        <table class="w-full text-right border-collapse">
+            <thead>
+                <tr class="bg-gray-50 dark:bg-[#020617] text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                    <th class="px-6 py-4 font-bold">التاريخ</th>
+                    <th class="px-6 py-4 font-bold">الوصف / البيان</th>
+                    <th class="px-6 py-4 font-bold">الفئة</th>
+                    <th class="px-6 py-4 font-bold">بواسطة</th>
+                    <th class="px-6 py-4 font-bold text-center">المبلغ</th>
+                    <th class="px-6 py-4 font-bold text-center">الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100 dark:divide-gray-800/50">
+                @forelse($expenses as $expense)
+                <tr class="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors group">
+                    <td class="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-mono">
+                        {{ \Carbon\Carbon::parse($expense->date)->format('Y-m-d') }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-gray-900 dark:text-white font-bold">{{ $expense->description }}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-lg text-xs font-medium border border-gray-200 dark:border-gray-700">
+                            {{ $expense->category ?? 'عام' }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-[10px] text-blue-600 dark:text-blue-400 font-bold">
+                                {{ substr($expense->user->name ?? 'A', 0, 1) }}
+                            </div>
+                            <span class="text-sm text-gray-700 dark:text-gray-300">{{ $expense->user->name ?? 'غير معروف' }}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="font-mono font-bold text-rose-600 dark:text-rose-400">
+                            {{ number_format($expense->amount, 2) }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-center gap-2">
+                            <form action="{{ route('expenses.destroy', $expense->id) }}" method="POST" class="delete-form">
+                                @csrf @method('DELETE')
+                                <button type="button" onclick="confirmDelete(this)" class="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-all">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-width="2"/></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" class="px-6 py-20 text-center">
+                        <div class="flex flex-col items-center">
+                            <div class="w-20 h-20 bg-gray-50 dark:bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                                <svg class="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" stroke-width="2"/></svg>
+                            </div>
+                            <p class="text-gray-500 dark:text-gray-400 font-medium">لا توجد مصاريف مسجلة</p>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // 1. وظيفة القوائم المنسدلة (Dropdowns) الموحدة
+    function setupDropdown(btnId, menuId, arrowId) {
+        const btn = document.getElementById(btnId);
+        const menu = document.getElementById(menuId);
+        const arrow = document.getElementById(arrowId);
+        
+        if(btn && menu) {
+            btn.addEventListener('click', () => {
+                const isOpen = menu.style.maxHeight !== '0px' && menu.style.maxHeight !== '';
+                menu.style.maxHeight = isOpen ? '0px' : menu.scrollHeight + 'px';
+                if(arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        }
+    }
+
+    // تفعيل كل القوائم
+    setupDropdown('supplierBtn', 'supplierMenu', 'supplierArrow');
+    setupDropdown('warehouseBtn', 'warehouseMenu', 'warehouseArrow');
+    setupDropdown('employeeBtn', 'employeeMenu', 'employeeArrow');
+    setupDropdown('purchasesBtn', 'purchasesMenu', 'purchasesArrow');
+    setupDropdown('expensesBtn', 'expensesMenu', 'expensesArrow');
+
+    // 2. وظيفة إغلاق وفتح السايد بار (Sidebar Toggle)
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+toggleBtn.addEventListener('click', () => {
+    // إخفاء السايد بار بإزاحته لليمين خارج الشاشة
+    sidebar.classList.toggle('translate-x-full');
+    
+    if (sidebar.classList.contains('translate-x-full')) {
+        // توسيع المحتوى والناف بار ليأخذا كامل الشاشة
+        mainContent.classList.replace('mr-72', 'mr-0');
+    } else {
+        // إعادة الهامش لحجز مكان للسايد بار
+        mainContent.classList.replace('mr-0', 'mr-72');
+    }
+});
+
+    // 3. تنبيه النجاح (SweetAlert)
+    @if(session('success'))
+        Swal.fire({
+            title: 'تم الحفظ!',
+            text: "{{ session('success') }}",
+            icon: 'success',
+            background: '#0f172a',
+            color: '#fff',
+            confirmButtonColor: '#2563eb'
+        });
+    @endif
+ 
+    async function openExpenseModal() {
+        const isDark = document.documentElement.classList.contains('dark');
+        
+        const { value: formValues } = await Swal.fire({
+            title: '<span class="dark:text-white">إضافة مصاريف جديدة</span>',
+            background: isDark ? '#0f172a' : '#fff',
+            color: isDark ? '#fff' : '#000',
+            html: `
+                <div class="flex flex-col gap-4 text-right p-2">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400">الوصف / البيان</label>
+                        <input id="swal-desc" class="w-full mt-1 bg-gray-50 dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="text-xs font-bold text-gray-400">المبلغ (د.ج)</label>
+                            <input id="swal-amount" type="number" class="w-full mt-1 bg-gray-50 dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold text-gray-400">التاريخ</label>
+                            <input id="swal-date" type="date" value="{{ date('Y-m-d') }}" class="w-full mt-1 bg-gray-50 dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+            `,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'حفظ البيانات',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#2563eb',
+            customClass: { popup: 'rounded-3xl border border-gray-100 dark:border-gray-800 shadow-2xl' },
+            preConfirm: () => {
+                return {
+                    description: document.getElementById('swal-desc').value,
+                    amount: document.getElementById('swal-amount').value,
+                    date: document.getElementById('swal-date').value,
+                    _token: '{{ csrf_token() }}'
+                }
+            }
+        });
+
+        if (formValues) {
+            // إرسال البيانات عبر AJAX أو Submit عادي
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{{ route('expenses.store') }}";
+            for (const key in formValues) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = formValues[key];
+                form.appendChild(input);
+            }
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    function confirmDelete(button) {
+        const form = button.closest('.delete-form');
+        const isDark = document.documentElement.classList.contains('dark');
+
+        Swal.fire({
+            title: 'هل أنت متأكد؟',
+            text: "لن تتمكن من استرجاع هذا السجل!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'نعم، احذف',
+            cancelButtonText: 'إلغاء',
+            background: isDark ? '#0f172a' : '#fff',
+            color: isDark ? '#fff' : '#000',
+            customClass: { popup: 'rounded-3xl' }
+        }).then((result) => {
+            if (result.isConfirmed) form.submit();
+        });
+    }
+</script>
+@endpush

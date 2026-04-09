@@ -1,191 +1,236 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS System - Add New Worker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #0b1120; /* اللون الداكن من الكود الأول */
-            color: #94a3b8;
-        }
-        .glass-card { 
-            background: rgba(30, 41, 59, 0.7); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-        }
-        .gradient-header { 
-            background: linear-gradient(90deg, #2563eb, #0891b2); 
-        }
-        .input-field { 
-            @apply w-full px-4 py-2.5 rounded-xl border border-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none bg-[#0f172a] text-white; 
-        }
-        .label-style { 
-            @apply block text-sm font-semibold text-gray-400 mb-1.5 ml-1 italic; 
-        }
-        /* تحسين مظهر الـ select في الوضع الداكن */
-        select.input-field option {
-            background-color: #0f172a;
-            color: white;
-        }
-    </style>
-</head>
+php artisan view:clear@extends('layouts.app')
 
-<body class="min-h-screen flex items-center justify-center p-6">
+@section('title', 'إضافة موظف جديد')
 
-    <div class="glass-card w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden">
-        <div class="gradient-header p-8 text-white flex justify-between items-center">
+@section('content')
+<div class="max-w-5xl mx-auto">
+    <div class="bg-white dark:bg-[#0f172a] rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl overflow-hidden transition-colors duration-300">
+        
+        <div class="bg-gradient-to-r from-blue-600 to-cyan-600 p-8 text-white flex justify-between items-center">
             <div>
-                <h2 class="text-3xl font-bold uppercase tracking-wider italic">Add New Worker</h2>
-                <p class="text-blue-100 mt-1">Fill in the details to register a new employee</p>
+                <h2 class="text-2xl font-bold uppercase tracking-wider">تسجيل موظف جديد</h2>
+                <p class="text-blue-100 mt-1 text-sm">يرجى إدخال البيانات المطلوبة لإنشاء حساب الموظف في النظام</p>
             </div>
-            <i class="fas fa-user-plus text-4xl opacity-50"></i>
+            <div class="p-3 bg-white/10 rounded-2xl backdrop-blur-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+            </div>
         </div>
 
-        <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data" class="p-8 bg-[#0B1220]">
+        <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data" class="p-8">
             @csrf
             
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 
                 <div class="flex flex-col items-center space-y-4">
-                    <span class="label-style w-full text-center uppercase tracking-widest text-xs">Profile Picture</span>
+                    <label class="block text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest text-center w-full">الصورة الشخصية</label>
                     <div class="relative group">
-                        <div class="w-48 h-48 rounded-2xl border-2 border-dashed border-gray-600 flex items-center justify-center overflow-hidden bg-[#0f172a] transition-all group-hover:border-blue-500 cursor-pointer">
+                        <div class="w-56 h-56 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden bg-gray-50 dark:bg-[#020617] transition-all group-hover:border-blue-500 cursor-pointer shadow-inner">
                             <img id="image-preview" src="" class="w-full h-full object-cover hidden">
-                            <div id="placeholder-icon" class="text-gray-500 flex flex-col items-center">
-                                <i class="fas fa-cloud-upload-alt text-4xl mb-2"></i>
-                                <span class="text-[10px] font-bold tracking-widest uppercase">Upload Image</span>
+                            <div id="placeholder-icon" class="text-gray-400 flex flex-col items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-[10px] font-bold tracking-widest uppercase">اضغط للرفع</span>
                             </div>
                         </div>
                         <input type="file" name="image" id="image-input" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*">
                     </div>
-                    <p class="text-[10px] text-gray-500 italic text-center">Supported: JPG, PNG (Max 2MB)</p>
+                    <p class="text-[10px] text-gray-400 italic text-center">الحد الأقصى: 2 ميجابايت (JPG, PNG)</p>
                 </div>
 
-                <div class="md:col-span-2 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="label-style">Full Name</label>
-                            <input type="text" name="name" class="input-field" value="{{ old('name') }}" placeholder="Ali Mohammed" required>
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">الاسم الكامل</label>
+                            <input type="text" name="name" value="{{ old('name') }}" required
+                                class="w-full bg-gray-50 dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition outline-none placeholder-gray-400"
+                                placeholder="علي محمد">
                         </div>
-                        <div>
-                            <label class="label-style">Email Address</label>
-                            <input type="email" name="email" class="input-field" value="{{ old('email') }}" placeholder="admin@test.com" required>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="label-style">Password</label>
-                            <input type="password" name="password" class="input-field" placeholder="••••••••" required>
-                        </div>
-                        <div>
-                            <label class="label-style">Phone Number</label>
-                            <input type="text" name="phone" class="input-field" value="{{ old('phone') }}" placeholder="+213 5XX XX XX XX" required>
+                        <div class="space-y-1">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">البريد الإلكتروني</label>
+                            <input type="email" name="email" value="{{ old('email') }}" required
+                                class="w-full bg-gray-50 dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition outline-none placeholder-gray-400"
+                                placeholder="example@test.com">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#0f172a]/50 p-4 rounded-2xl border border-gray-800">
-                        <div>
-                            <label class="label-style text-xs">Age</label>
-                            <input type="number" name="age" class="input-field" value="{{ old('age') }}" placeholder="25" required>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">كلمة المرور</label>
+                            <input type="password" name="password" required
+                                class="w-full bg-gray-50 dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition outline-none"
+                                placeholder="••••••••">
                         </div>
-                        <div>
-                            <label class="label-style text-xs">Gender</label>
-                            <select name="gender" class="input-field">
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
+                        <div class="space-y-1">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">رقم الهاتف</label>
+                            <input type="text" name="phone" value="{{ old('phone') }}" required
+                                class="w-full bg-gray-50 dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition outline-none"
+                                placeholder="+213 XXXXXXXX">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-5 bg-gray-50 dark:bg-[#020617]/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400">العمر</label>
+                            <input type="number" name="age" value="{{ old('age') }}" required
+                                class="w-full bg-white dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white transition outline-none">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400">الجنس</label>
+                            <select name="gender" class="w-full bg-white dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white transition outline-none appearance-none">
+                                <option value="Male">ذكر</option>
+                                <option value="Female">أنثى</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="label-style text-xs">Job Title</label>
-                            <input type="text" name="job_title" class="input-field" value="{{ old('job_title') }}" placeholder="Accountant" required>
+                        <div class="space-y-1">
+                            <label class="block text-xs font-bold text-gray-500 dark:text-gray-400">المسمى الوظيفي</label>
+                            <input type="text" name="job_title" value="{{ old('job_title') }}" required
+                                class="w-full bg-white dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-gray-900 dark:text-white transition outline-none"
+                                placeholder="محاسب">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="label-style">Warehouse</label>
-                            <select name="warehouse_id" class="input-field" required>
-                                <option value="">Select...</option>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">المخزن</label>
+                            <select name="warehouse_id" required
+                                class="w-full bg-gray-50 dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition outline-none appearance-none">
+                                <option value="">اختر المخزن...</option>
                                 @foreach($warehouses as $warehouse)
                                     <option value="{{ $warehouse->id }}">{{ $warehouse->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div>
-                            <label class="label-style">Salary (DZD)</label>
-                            <input type="number" step="0.01" name="salary" class="input-field" value="{{ old('salary') }}" placeholder="0.00">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">الراتب (د.ج)</label>
+                            <input type="number" step="0.01" name="salary" value="{{ old('salary') }}"
+                                class="w-full bg-gray-50 dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition outline-none"
+                                placeholder="0.00">
                         </div>
-                        <div>
-                            <label class="label-style">Hire Date</label>
-                            <input type="date" name="hire_date" class="input-field" value="{{ old('hire_date') }}">
+                        <div class="space-y-1">
+                            <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">تاريخ التوظيف</label>
+                            <input type="date" name="hire_date" value="{{ old('hire_date') }}"
+                                class="w-full bg-gray-50 dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 transition outline-none">
                         </div>
                     </div>
 
-                    <div class="pt-4 flex justify-end gap-3">
-                        <button type="reset" class="px-6 py-2.5 rounded-xl text-gray-500 hover:text-gray-300 font-bold transition">Reset</button>
-                        <button type="submit" class="px-10 py-2.5 gradient-header text-white rounded-xl font-bold shadow-lg transition-all transform hover:scale-105 flex items-center gap-2">
-                            <i class="fas fa-check"></i> Create Worker
+                    <div class="pt-6 flex justify-end gap-4 border-t border-gray-100 dark:border-gray-800">
+                        <button type="reset" class="px-6 py-3 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 font-bold transition">إعادة تعيين</button>
+                        <button type="submit" 
+                            class="px-10 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-600/20 transition-all transform hover:scale-[1.02] flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            إنشاء حساب الموظف
                         </button>
                     </div>
                 </div>
             </div>
         </form>
     </div>
+</div>
+@endsection
 
-    <script>
-        // Image Preview Logic
-        const imageInput = document.getElementById('image-input');
-        const imagePreview = document.getElementById('image-preview');
-        const placeholderIcon = document.getElementById('placeholder-icon');
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function setupDropdown(btnId, menuId, arrowId) {
+        const btn = document.getElementById(btnId);
+        const menu = document.getElementById(menuId);
+        const arrow = document.getElementById(arrowId);
+        
+        if(btn && menu) {
+            btn.addEventListener('click', () => {
+                const isOpen = menu.style.maxHeight !== '0px' && menu.style.maxHeight !== '';
+                menu.style.maxHeight = isOpen ? '0px' : menu.scrollHeight + 'px';
+                if(arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+            });
+        }
+    }
 
-        imageInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.src = e.target.result;
-                    imagePreview.classList.remove('hidden');
-                    placeholderIcon.classList.add('hidden');
-                }
-                reader.readAsDataURL(file);
-            }
+    // تفعيل كل القوائم
+    setupDropdown('supplierBtn', 'supplierMenu', 'supplierArrow');
+    setupDropdown('warehouseBtn', 'warehouseMenu', 'warehouseArrow');
+    setupDropdown('employeeBtn', 'employeeMenu', 'employeeArrow');
+    setupDropdown('purchasesBtn', 'purchasesMenu', 'purchasesArrow');
+    setupDropdown('expensesBtn', 'expensesMenu', 'expensesArrow');
+
+    // 2. وظيفة إغلاق وفتح السايد بار (Sidebar Toggle)
+    const toggleBtn = document.getElementById('toggleSidebar');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+toggleBtn.addEventListener('click', () => {
+    // إخفاء السايد بار بإزاحته لليمين خارج الشاشة
+    sidebar.classList.toggle('translate-x-full');
+    
+    if (sidebar.classList.contains('translate-x-full')) {
+        // توسيع المحتوى والناف بار ليأخذا كامل الشاشة
+        mainContent.classList.replace('mr-72', 'mr-0');
+    } else {
+        // إعادة الهامش لحجز مكان للسايد بار
+        mainContent.classList.replace('mr-0', 'mr-72');
+    }
+});
+
+    // 3. تنبيه النجاح (SweetAlert)
+    @if(session('success'))
+        Swal.fire({
+            title: 'تم الحفظ!',
+            text: "{{ session('success') }}",
+            icon: 'success',
+            background: '#0f172a',
+            color: '#fff',
+            confirmButtonColor: '#2563eb'
         });
+    @endif
+    // 1. منطق معاينة الصورة الشخصية
+    const imageInput = document.getElementById('image-input');
+    const imagePreview = document.getElementById('image-preview');
+    const placeholderIcon = document.getElementById('placeholder-icon');
 
-        // Flash Messages with SweetAlert2 (Laravel Integration)
-        @if(session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'Done!',
-                text: "{{ session('success') }}",
-                background: '#1e293b',
-                color: '#fff',
-                confirmButtonColor: '#2563eb',
-                customClass: { popup: 'rounded-3xl border border-gray-700' }
-            });
-        @endif
+    imageInput.addEventListener('change', function() {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+                placeholderIcon.classList.add('hidden');
+            }
+            reader.readAsDataURL(file);
+        }
+    });
 
-        @if($errors->any())
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                background: '#1e293b',
-                color: '#fff',
-                html: `<ul class="text-left text-sm text-red-400">
-                        @foreach ($errors->all() as $error)
-                            <li>• {{ $error }}</li>
-                        @endforeach
-                      </ul>`,
-                confirmButtonColor: '#ef4444',
-                customClass: { popup: 'rounded-3xl border border-gray-700' }
-            });
-        @endif
-    </script>
-</body>
-</html>
+    // 2. إعدادات التنبيهات المتوافقة مع الـ Dark Mode
+    const swalConfig = {
+        background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#fff',
+        color: document.documentElement.classList.contains('dark') ? '#fff' : '#000',
+    };
+
+    @if(session('success'))
+        Swal.fire({
+            ...swalConfig,
+            icon: 'success',
+            title: 'تمت العملية!',
+            text: "{{ session('success') }}",
+            confirmButtonColor: '#2563eb'
+        });
+    @endif
+
+    @if($errors->any())
+        Swal.fire({
+            ...swalConfig,
+            icon: 'error',
+            title: 'خطأ في البيانات!',
+            html: `<ul class="text-right text-sm text-rose-500">
+                    @foreach ($errors->all() as $error)
+                        <li>• {{ $error }}</li>
+                    @endforeach
+                  </ul>`,
+            confirmButtonColor: '#e11d48'
+        });
+    @endif
+</script>
+@endpush
