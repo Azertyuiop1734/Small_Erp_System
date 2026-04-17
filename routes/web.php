@@ -35,7 +35,6 @@ Route::get('/admin/dashboard', function () {
 Route::get('/worker/dashboard', function () {
     return "صفحة العامل";
 })->name('worker.dashboard');
-Route::get('/admin/users/createAdmin', [UserController::class, 'createAdmin'])->name('users.create');
 Route::post('/create-admin', [UserController::class, 'storeAdmin'])->name('admin.store');
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])
     ->name('admin.dashboard');
@@ -55,7 +54,7 @@ Route::post('reset-password', [ForgotPasswordController::class, 'updatePassword'
 //--------------------------------------
 
 
-Route::middleware(['auth'])->group(function() {
+
 
 
 
@@ -64,7 +63,7 @@ Route::middleware(['auth'])->group(function() {
 
 Route::get('/admin/users/create', [UserController::class, 'create'])->name('users.create');
 Route::post('/admin/users/store', [UserController::class, 'store'])->name('users.store');
-Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');//sssssss
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
 Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
@@ -99,7 +98,7 @@ Route::put('/admin/suppliers/update/{id}', [SupplierController::class, 'update']
 //ادارة المخازن و المنتجات في النضام
 Route::get('/admin/stores/add', [StoreController::class, 'create'])->name('stores.create');
 Route::post('/admin/stores/store', [StoreController::class, 'store'])->name('stores.store');
-Route::get('/admin/stores/display', [StoreController::class, 'index'])->name('stores.index');
+Route::get('/admin/stores/display', [StoreController::class, 'index'])->name('stores.index');//sssssssssss
 Route::delete('/admin/stores/delete/{id}', [StoreController::class, 'destroy'])->name('stores.destroy');
 Route::get('/admin/products/add', [ProductController::class, 'create'])->name('products.create');
 Route::post('/admin/products/store', [ProductController::class, 'store'])->name('products.store');
@@ -107,7 +106,7 @@ Route::get('/admin/products/display', [ProductController::class, 'index'])->name
 Route::get('/admin/products/delete/{id}', [ProductController::class, 'destroy'])->name('products.delete');
 Route::get('/admin/products/edit/{id}', [ProductController::class, 'edit'])->name('products.edit');
 Route::post('/admin/products/update/{id}', [ProductController::class, 'update'])->name('products.update');
-Route::get('/inventory/low-stock', [ProductController::class, 'lowStock'])->name('inventory.low_stock');
+Route::get('/inventory/low-stock', [ProductController::class, 'lowStock'])->name('inventory.low_stock');//sssssss
 
 
 
@@ -197,5 +196,5 @@ Route::get('/late-payers', [App\Http\Controllers\StatisticsController::class, 'i
 Route::get('/general_sales', [App\Http\Controllers\StatisticsController::class, 'index3'])->name('late.payers');
 Route::get('/product-analysis', [App\Http\Controllers\StatisticsController::class, 'index4'])->name('products.analysis');
 Route::get('/customers', [App\Http\Controllers\StatisticsController::class, 'index5'])->name('customers');
-});
+
 

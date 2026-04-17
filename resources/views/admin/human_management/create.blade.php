@@ -1,4 +1,4 @@
-php artisan view:clear@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'إضافة موظف جديد')
 
