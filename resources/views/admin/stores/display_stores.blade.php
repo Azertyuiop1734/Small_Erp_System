@@ -6,25 +6,40 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #0f172a; color: #94a3b8; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .gradient-btn { background: linear-gradient(90deg, #2563eb, #0891b2); }
+        .gradient-btn th {
+            background: transparent !important;
+            border-bottom: none;
+            color: white !important;
+        }
+        .form-input { background-color: #0f172a; border: 1px solid #1e293b; color: white; }
+    </style>
 </head>
-<body class="bg-light p-5">
+<body class="p-5">
 
-<div class="container shadow-sm p-4 bg-white rounded">
+<div class="container shadow-sm p-4 glass-card rounded">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>إدارة المخازن والمستودعات</h2>
-        <a href="{{ route('stores.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> إضافة مخزن جديد
+        <h2 class="text-white">
+            <i class="fas fa-warehouse ml-2 text-info"></i>
+              إدارة المخازن والمستودعات
+       </h2>
+        <a href="{{ route('stores.create') }}" class="btn gradient-btn">
+            <i class="fas fa-plus "></i> إضافة مخزن جديد
         </a>
     </div>
 
-    <table class="table table-hover table-bordered text-center">
-        <thead class="table-dark">
+    <table class="table table-hover text-center">
+        <thead class="gradient-btn">
             <tr>
-                <th>#</th>
-                <th>اسم المخزن</th>
-                <th>الموقع / العنوان</th>
-                <th>تاريخ الإنشاء</th>
-                <th>الإجراءات</th>
+                <th><i class="fas fa-list-ol ml-1"></i></th>
+                <th><i class="fas fa-warehouse ml-1"></i>اسم المخزن</th>
+                <th><i class="fas fa-map-marker-alt ml-1"></i>الموقع / العنوان</th>
+                <th><i class="fas fa-calendar-alt ml-1"></i>تاريخ الإنشاء</th>
+                <th><i class="fas fa-tools ml-1"></i>الإجراءات</th>
             </tr>
         </thead>
         <tbody>
@@ -46,12 +61,15 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="text-muted p-4">لا توجد مخازن مسجلة حالياً.</td>
+                    <td colspan="5" class="py-5 text-white" style="background: transparent;">
+                    <i class="fas fa-box-open fa-3x mb-3 d-block opacity-50"></i>
+                         لا توجد مخازن مسجلة حالياً.
                 </tr>
             @endforelse
         </tbody>
     </table>
 </div>
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
