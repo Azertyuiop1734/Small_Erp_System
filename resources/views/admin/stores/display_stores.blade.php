@@ -11,12 +11,61 @@
         body { background-color: #0f172a; color: #94a3b8; }
         .glass-card { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.05); }
         .gradient-btn { background: linear-gradient(90deg, #2563eb, #0891b2); }
+        .table {
+            border-collapse: separate; /* ضروري جداً للسماح بظهور الحواف الدائرية */
+            border-spacing: 0;
+            background: transparent !important;
+            color: #94a3b8 !important;
+        }
+        .table thead tr th:first-child {
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+        }
+        .table thead tr th:last-child {
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+        }
         .gradient-btn th {
             background: transparent !important;
-            border-bottom: none;
+            border: none !important;
             color: white !important;
+            padding: 12px;
         }
-        .form-input { background-color: #0f172a; border: 1px solid #1e293b; color: white; }
+        .form-input { 
+            background-color: #0f172a;
+            border: 1px solid #1e293b;
+            color: white;
+        }
+        
+        .table tbody td {
+        background: transparent !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important; /* خط نحيف جداً يفصل الصفوف */
+        color: #cbd5e1 !important; /* لون نص أوضح قليلاً للقراءة */
+        vertical-align: middle;
+        padding: 15px 10px;
+       }
+       .table-hover tbody tr:hover td {
+        background: rgba(255, 255, 255, 0.03) !important; /* إضاءة خفيفة جداً عند التأشير */
+        color: #fff !important;
+    }
+    .table > :not(caption) > * > * {
+        background-color: transparent !important;
+        box-shadow: none !important;
+    }
+    .btn-delete {
+        border-radius: 8px;
+        padding: 5px 12px;
+        font-size: 0.85rem;
+        background-color: rgba(220, 38, 38, 0.2); /* أحمر شفاف */
+        border: 1px solid rgba(220, 38, 38, 0.5);
+        color: #fca5a5;
+        transition: all 0.3s;
+    }
+    .btn-delete:hover {
+        background-color: #dc2626; /* أحمر كامل عند الحصر */
+        color: white;
+    }
+        
     </style>
 </head>
 <body class="p-5">
