@@ -84,11 +84,11 @@
     <table class="table table-hover text-center">
         <thead class="gradient-btn">
             <tr>
-                <th><i class="fas fa-list-ol ml-1"></i></th>
-                <th><i class="fas fa-warehouse ml-1"></i>اسم المخزن</th>
-                <th><i class="fas fa-map-marker-alt ml-1"></i>الموقع / العنوان</th>
-                <th><i class="fas fa-calendar-alt ml-1"></i>تاريخ الإنشاء</th>
-                <th><i class="fas fa-tools ml-1"></i>الإجراءات</th>
+                <th><i class="fas fa-list-ol me-1"></i></th>
+                <th><i class="fas fa-warehouse me-2"></i>اسم المخزن</th>
+                <th><i class="fas fa-map-marker-alt me-2"></i>الموقع / العنوان</th>
+                <th><i class="fas fa-calendar-alt me-2"></i>تاريخ الإنشاء</th>
+                <th><i class="fas fa-tools me-2"></i>الإجراءات</th>
             </tr>
         </thead>
         <tbody>
