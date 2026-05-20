@@ -10,7 +10,11 @@ class CategoryController extends Controller
 
 public function index()
 {
-    $categories = Category::orderBy('id', 'desc')->get();
+    // جلب الأقسام التي قيمتها 1 في عمود display وترتيبها من الأحدث للأقدم
+    $categories = Category::where('display', 1)
+        ->orderBy('id', 'desc')
+        ->get();
+
     return view('admin.stores.display_category', compact('categories'));
 }
 
@@ -35,18 +39,17 @@ public function index()
         ->with('success', 'تم إضافة القسم بنجاح');
 }
 
-   public function destroy($id)
+ public function destroy($id)
 {
     $category = Category::findOrFail($id);
 
-    if ($category->products()->exists()) {
-        return redirect()->back()
-            ->with('error_message', 'لا يمكن حذف هذا القسم لأنه يحتوي على منتجات مرتبطة به!');
-    }
-
-    $category->delete();
+   
+    // تحديث قيمة العمود display بدلاً من الحذف
+    $category->update([
+        'display' => 0
+    ]);
 
     return redirect()->route('categories.index')
-        ->with('success', 'تم حذف القسم بنجاح');
+        ->with('success', 'تم الحدف القسم بنجاح من العرض');
 }
 }

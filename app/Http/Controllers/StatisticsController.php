@@ -17,212 +17,200 @@ class StatisticsController extends Controller
 {
 
     public function index()
-    {
-        $today = Carbon::today();
-        $thisMonth = Carbon::now()->month;
-        $thisYear = Carbon::now()->year;
+{
+    $today = Carbon::today();
+    $thisMonth = Carbon::now()->month;
+    $thisYear = Carbon::now()->year;
 
-        // --- 1. بيانات البطاقات (كما هي سابقاً) ---
-        $salesToday = Sale::whereDate('created_at', $today)->sum('total_amount');
-        $salesMonth = Sale::whereMonth('created_at', $thisMonth)->whereYear('created_at', $thisYear)->sum('total_amount');
-        $salesYear = Sale::whereYear('created_at', $thisYear)->sum('total_amount');
-        $totalExpenses = Expense::whereYear('created_at', $thisYear)->sum('amount'); // المصاريف لهذه السنة فقط
-        $netProfit = $salesYear - $totalExpenses;
+    // --- 1. بيانات البطاقات (تم تعديل المسميات لتطابق الـ View) ---
+    
+    // مبيعات اليوم
+    $salesToday = Sale::whereDate('created_at', $today)->sum('total_amount');
+    
+    // مبيعات الشهر (تعديل الاسم من $salesMonth إلى $salesThisMonth)
+    $salesThisMonth = Sale::whereMonth('created_at', $thisMonth)
+        ->whereYear('created_at', $thisYear)
+        ->sum('total_amount');
+        
+    // مصاريف الشهر (إضافة هذا المتغير ليعمل في البطاقة الثالثة)
+    $expensesThisMonth = Expense::whereMonth('created_at', $thisMonth)
+        ->whereYear('created_at', $thisYear)
+        ->sum('amount');
 
+    // إجمالي المبيعات والمصاريف السنوية (للرسوم البيانية)
+    $salesYear = Sale::whereYear('created_at', $thisYear)->sum('total_amount');
+    $totalExpenses = Expense::whereYear('created_at', $thisYear)->sum('amount');
+    $netProfit = $salesYear - $totalExpenses;
 
-        // --- 2. تجهيز بيانات المنحنى البياني (Chart Data) ---
+    // --- 2. تجهيز بيانات المنحنى البياني (Chart Data) ---
+    $months = [];
+    $monthlySalesData = [];
+    $monthlyExpensesData = [];
 
-        // جلب أسماء الشهور (يناير، فبراير، ...) باللغة العربية أو الإنجليزية
-        $labels = [];
-        for ($m = 1; $m <= 12; $m++) {
-            $labels[] = Carbon::create($thisYear, $m, 1)->format('F'); // 'F' تعطي اسم الشهر كاملاً بالإنجليزية
-            // لاستخدام اللغة العربية، يمكنك استخدام: $labels[] = Carbon::create($thisYear, $m, 1)->locale('ar')->translatedFormat('F');
-        }
-
-        // جلب المبيعات الشهرية للسنة الحالية
-        $monthlySalesData = Sale::select(
-            DB::raw('sum(total_amount) as total'),
-            DB::raw('DATE_FORMAT(created_at, "%m") as month') // تجميع حسب رقم الشهر
-        )
+    for ($m = 1; $m <= 12; $m++) {
+        $months[] = Carbon::create($thisYear, $m, 1)->format('F');
+        
+        $monthlySalesData[] = Sale::whereMonth('created_at', $m)
             ->whereYear('created_at', $thisYear)
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
-
-        // جلب المصاريف الشهرية للسنة الحالية
-        $monthlyExpensesData = Expense::select(
-            DB::raw('sum(amount) as total'),
-            DB::raw('DATE_FORMAT(expense_date, "%m") as month') // تجميع حسب رقم الشهر
-        )
-            ->whereYear('expense_date', $thisYear)
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
-
-        // ملء مصفوفات البيانات بـ 0 للشهور التي لا توجد بها بيانات
-        $salesChartData = array_fill(0, 12, 0);
-        $expensesChartData = array_fill(0, 12, 0);
-        $profitChartData = array_fill(0, 12, 0);
-
-        foreach ($monthlySalesData as $data) {
-            $salesChartData[(int)$data->month - 1] = (float)$data->total;
-        }
-
-        foreach ($monthlyExpensesData as $data) {
-            $expensesChartData[(int)$data->month - 1] = (float)$data->total;
-        }
-
-        // حساب صافي الربح لكل شهر (المبيعات - المصاريف)
-        for ($i = 0; $i < 12; $i++) {
-            $profitChartData[$i] = $salesChartData[$i] - $expensesChartData[$i];
-        }
-
-
-        // إرسال البيانات الكبيرة (Chart) بشكل JSON ليفهمها الـ JavaScript
-        return view('Statistics.finance.Revenues_and_Expenses', compact(
-            'salesToday',
-            'salesMonth',
-            'salesYear',
-            'totalExpenses',
-            'netProfit'
-        ))->with([
-            'chartLabels' => json_encode($labels),
-            'chartSales' => json_encode($salesChartData),
-            'chartExpenses' => json_encode($expensesChartData),
-            'chartProfit' => json_encode($profitChartData),
-        ]);
+            ->sum('total_amount');
+            
+        $monthlyExpensesData[] = Expense::whereMonth('created_at', $m)
+            ->whereYear('created_at', $thisYear)
+            ->sum('amount');
     }
+
+    return view('Statistics.finance.Revenues_and_Expenses', compact(
+        'salesToday', 
+        'salesThisMonth', // تم التعديل هنا
+        'expensesThisMonth', // تم التعديل هنا
+        'salesYear',
+        'totalExpenses',
+        'netProfit',
+        'months',
+        'monthlySalesData',
+        'monthlyExpensesData'
+    ));
+}
 
 
 
     public function index1()
-    {
-        $thisYear = Carbon::now()->year;
+{
+    $thisYear = now()->year;
 
-        // --- 1. حساب المؤشرات الرئيسية (KPIs) ---
+    // 1. حساب المؤشرات الرئيسية (KPIs)
+    $totalInvoicesCount = Sale::whereYear('created_at', $thisYear)->count();
+    
+    // حساب إجمالي عدد المنتجات المباعة في كل الفواتير
+    $totalItemsCount = DB::table('sale_items') // تأكد من اسم جدول تفاصيل الفاتورة لديك
+        ->join('sales', 'sales.id', '=', 'sale_items.sale_id')
+        ->whereYear('sales.created_at', $thisYear)
+        ->sum('quantity');
 
-        // إجمالي عدد الفواتير (لهذه السنة)
-        $totalInvoicesCount = Sale::whereYear('created_at', $thisYear)->count();
+    $highestInvoiceAmount = Sale::whereYear('created_at', $thisYear)->max('total_amount') ?? 0;
+    $averageInvoiceValue = Sale::whereYear('created_at', $thisYear)->avg('total_amount') ?? 0;
 
-        // عدد الفواتير المدفوعة بالكامل
-        $paidInvoicesCount = Sale::whereYear('created_at', $thisYear)
-            ->where('status', 'paid') // نعتمد على الحقل status الذي قمنا بتحديثه سابقاً
+    // 2. توزيع الفواتير شهرياً (الرسم البياني العمودي)
+    $months = [];
+    $monthlyInvoicesData = [];
+    for ($m = 1; $m <= 12; $m++) {
+        $months[] = Carbon::create($thisYear, $m, 1)->format('F');
+        $monthlyInvoicesData[] = Sale::whereYear('created_at', $thisYear)
+            ->whereMonth('created_at', $m)
             ->count();
-
-        // عدد الفواتير غير المدفوعة (تشمل الجزئية وغير المدفوعة تماماً)
-        $unpaidInvoicesCount = Sale::whereYear('created_at', $thisYear)
-            ->whereIn('status', ['partial', 'unpaid'])
-            ->count();
-
-        // متوسط قيمة الفاتورة (Average Invoice Value)
-        $averageInvoiceValue = Sale::whereYear('created_at', $thisYear)->avg('total_amount') ?? 0;
-
-        // --- خصائص إضافية قمت بإضافتها لك ---
-
-        // أعلى قيمة فاتورة (Highest Invoice Value)
-        $highestInvoiceValue = Sale::whereYear('created_at', $thisYear)->max('total_amount') ?? 0;
-
-        // إجمالي المبالغ المحصلة (Total Collected)
-        $totalCollected = Sale::whereYear('created_at', $thisYear)->sum('paid_amount');
-
-        // إجمالي المبالغ المتبقية (Total Remaining)
-        $totalRemaining = Sale::whereYear('created_at', $thisYear)->sum('remaining_amount');
-
-        // معدل التحصيل (Collection Rate) كنسبة مئوية
-        $totalAmount = Sale::whereYear('created_at', $thisYear)->sum('total_amount');
-        $collectionRate = ($totalAmount > 0) ? ($totalCollected / $totalAmount) * 100 : 0;
-
-
-        // --- 2. تجهيز بيانات الرسم البياني المجوف (Doughnut Chart) ---
-        // البيانات هي ببساطة الأعداد التي حسبناها
-        $doughnutData = [
-            'paid' => $paidInvoicesCount,
-            'unpaid' => $unpaidInvoicesCount,
-        ];
-
-
-        // تمرير البيانات للـ View
-        return view('Statistics.finance.invoices', compact(
-            'totalInvoicesCount',
-            'paidInvoicesCount',
-            'unpaidInvoicesCount',
-            'averageInvoiceValue',
-            'highestInvoiceValue',
-            'totalCollected',
-            'totalRemaining',
-            'collectionRate'
-        ))->with([
-            // تمرير البيانات كـ JSON للـ JavaScript
-            'doughnutChartData' => json_encode($doughnutData),
-        ]);
     }
+
+    // 3. الفواتير حسب الموردين (الرسم البياني الدائري)
+    // ملاحظة: إذا كانت الفواتير مرتبطة بعملاء وليس موردين، استبدل الموردين بالعملاء
+    $supplierData = Sale::select('customers.name', DB::raw('count(*) as total'))
+        ->join('customers', 'customers.id', '=', 'sales.customer_id')
+        ->whereYear('sales.created_at', $thisYear)
+        ->groupBy('customers.name')
+        ->get();
+
+    $supplierNames = $supplierData->pluck('name');
+    $supplierInvoicesData = $supplierData->pluck('total');
+
+    return view('Statistics.finance.invoices', compact(
+        'totalInvoicesCount',
+        'totalItemsCount',
+        'highestInvoiceAmount',
+        'averageInvoiceValue',
+        'months',
+        'monthlyInvoicesData',
+        'supplierNames',
+        'supplierInvoicesData'
+    ));
+}
 
     public function index2()
-    {
-        // 1. جلب العملاء الذين لديهم فواتير غير مدفوعة بالكامل
-        // نستخدم withSum لجلب إجمالي المبالغ المتبقية لكل عميل مباشرة
-        $customers = Customer::whereHas('sales', function ($query) {
-            $query->where('remaining_amount', '>', 0);
-        })
-            ->withSum(['sales as total_debt' => function ($query) {
-                $query->where('remaining_amount', '>', 0);
-            }], 'remaining_amount')
-            ->withCount(['sales as pending_invoices' => function ($query) {
-                $query->where('remaining_amount', '>', 0);
-            }])
-            ->orderBy('total_debt', 'desc') // ترتيب حسب الأكثر ديوناً
-            ->get();
+{
+    // 1. جلب العملاء الذين لديهم ديون مع حساب إجمالي الدين وعدد الفواتير المعلقة
+    $debtorCustomers = Customer::whereHas('sales', function ($query) {
+        $query->where('remaining_amount', '>', 0);
+    })->withSum(['sales as total_debt' => function ($query) {
+        $query->where('remaining_amount', '>', 0);
+    }], 'remaining_amount')
+    ->withCount(['sales as pending_invoices' => function ($query) {
+        $query->where('remaining_amount', '>', 0);
+    }])
+    ->orderBy('total_debt', 'desc')
+    ->get();
 
-        // 2. إحصائيات سريعة للوحة التحكم
-        $totalMarketDebt = Sale::sum('remaining_amount'); // إجمالي الديون في السوق
-        $debtorCustomersCount = $customers->count(); // عدد العملاء المدينين
-        $averageDebtPerCustomer = ($debtorCustomersCount > 0) ? ($totalMarketDebt / $debtorCustomersCount) : 0;
+    // 2. حساب المؤشرات الإحصائية للبطاقات
+    $totalMarketDebt = Sale::sum('remaining_amount');
+    $debtorCustomersCount = $debtorCustomers->count();
+    
+    // حساب متوسط الدين لكل عميل مدين (تجنب القسمة على صفر)
+    $averageDebtPerCustomer = $debtorCustomersCount > 0 
+        ? $totalMarketDebt / $debtorCustomersCount 
+        : 0;
 
-        return view('Statistics.finance.customers', compact(
-            'customers',
-            'totalMarketDebt',
-            'debtorCustomersCount',
-            'averageDebtPerCustomer'
-        ));
+    // 3. تمرير البيانات للـ View
+    return view('Statistics.finance.customers', compact(
+        'debtorCustomers', 
+        'totalMarketDebt', 
+        'debtorCustomersCount', 
+        'averageDebtPerCustomer'
+    ));
+}// SalesController.php
+
+ public function index3()
+{
+    $thisYear = now()->year;
+
+    // 1. حساب المؤشرات الرئيسية (KPIs)
+    $totalSales = Sale::whereYear('created_at', $thisYear)->sum('total_amount');
+    
+    // إجمالي عدد فواتير المشتريات
+    $purchaseInvoicesCount = \App\Models\Purchase::whereYear('created_at', $thisYear)->count();
+    
+    // إجمالي عدد فواتير المبيعات
+    $totalInvoicesCount = Sale::whereYear('created_at', $thisYear)->count();
+    $saleInvoicesCount = $totalInvoicesCount; 
+
+    // أعلى قيمة فاتورة (المتغير الذي كان يسبب الخطأ)
+    $highestInvoiceAmount = Sale::whereYear('created_at', $thisYear)->max('total_amount') ?? 0;
+
+    // متوسط قيمة الفاتورة
+    $averageInvoiceValue = $saleInvoicesCount > 0 ? $totalSales / $saleInvoicesCount : 0;
+    
+    // إجمالي عدد العملاء
+    $totalCustomers = Customer::has('sales')->count();
+
+    // 2. بيانات الرسم البياني (تطور المبيعات شهرياً)
+    $months = [];
+    $monthlyInvoicesData = [];
+    for ($m = 1; $m <= 12; $m++) {
+        $months[] = \Carbon\Carbon::create($thisYear, $m, 1)->translatedFormat('F');
+        $monthlyInvoicesData[] = Sale::whereYear('created_at', $thisYear)
+            ->whereMonth('created_at', $m)
+            ->sum('total_amount');
     }
-    // SalesController.php
 
-    public function index3()
-    {
-        // ... الكود الموجود لديك حالياً ...
+    // 3. بيانات الموردين (تأكد من وجود قيم لتجنب أخطاء compact)
+    $supplierNames = ['مورد 1', 'مورد 2', 'مورد 3']; 
+    $supplierInvoicesData = [10, 20, 30]; 
 
-        $totalOrders = Sale::count();
-        $totalSales = Sale::sum('total_amount');
+    // 4. أحدث العمليات
+    $recentSales = Sale::with('customer')
+        ->orderBy('created_at', 'desc')
+        ->take(5)
+        ->get();
 
-        // الأسطر التي قد تكون ناقصة لديك:
-        $remainingTotal = Sale::sum('remaining_amount'); // حساب المبالغ المتبقية
-
-        // حساب نسبة النمو (مثال)
-        $currentMonthSales = Sale::whereMonth('sale_date', now()->month)->sum('total_amount');
-        $lastMonthSales = Sale::whereMonth('sale_date', now()->subMonth()->month)->sum('total_amount');
-        $growthRate = $lastMonthSales > 0 ? (($currentMonthSales - $lastMonthSales) / $lastMonthSales) * 100 : 0;
-
-        $salesData = Sale::selectRaw('DATE(sale_date) as date, SUM(total_amount) as total')
-            ->groupBy('date')
-            ->orderBy('date', 'asc')
-            ->take(7)
-            ->get();
-
-        $recentSales = Sale::with(['customer', 'warehouse'])->latest()->take(5)->get();
-
-        // تأكد من إضافة 'remainingTotal' هنا في الدالة compact
-        return view('Statistics.sales.general_sales', compact(
-            'totalOrders',
-            'totalSales',
-            'remainingTotal',
-            'growthRate',
-            'salesData',
-            'recentSales'
-        ));
-    }
-    // StatisticsController.php
-
-
+    return view('Statistics.finance.invoices', compact(
+        'totalInvoicesCount',
+        'purchaseInvoicesCount',
+        'saleInvoicesCount',
+        'highestInvoiceAmount', // تم إضافة المتغير هنا
+        'averageInvoiceValue',
+        'months',
+        'monthlyInvoicesData',
+        'supplierNames',
+        'supplierInvoicesData',
+        'recentSales'
+    ));
+}
     public function index4()
     {
         // 1. أكثر المنتجات مبيعاً (Top 5)

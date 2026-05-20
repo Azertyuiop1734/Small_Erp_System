@@ -18,8 +18,10 @@ class POSController extends Controller
      */
     public function index()
     {
-        return view('worker.pos');
-    }
+        $customers = Customer::all();
+       return view('worker.pos', compact('customers'));
+}
+    
 
     /**
      * Get product details by barcode for the user's specific warehouse.

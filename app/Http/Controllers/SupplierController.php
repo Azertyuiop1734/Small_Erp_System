@@ -40,10 +40,14 @@ class SupplierController extends Controller
     
 public function index()
 {
-    $suppliers = DB::table('suppliers')->orderBy('id', 'desc')->get();
+    // جلب الموردين الذين لديهم حالة العرض نشطة فقط
+    $suppliers = DB::table('suppliers')
+        ->where('display', 1)
+        ->orderBy('id', 'desc')
+        ->get();
+
     return view('admin.suppliers.display_suppliers', compact('suppliers'));
 }
-
 
 public function destroy($id)
 {

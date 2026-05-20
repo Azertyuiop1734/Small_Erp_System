@@ -88,7 +88,7 @@ class PurchaseController extends Controller
         }
     });
 
-    return redirect()->back()->with('success', 'تم تسجيل المشتريات وتحديث المخزون بنجاح');
+   return redirect()->route('purchases.index')->with('success', 'تم تسجيل المشتريات بنجاح');
 }
 
 

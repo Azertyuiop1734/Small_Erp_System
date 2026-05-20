@@ -41,4 +41,11 @@ public function create()
 
         return redirect()->route('expenses.index')->with('success', 'Expense added successfully!');
     }
-}
+
+public function destroy($id)
+{
+    // حذف السجل من جدول المصاريف
+    \DB::table('expenses')->where('id', $id)->delete();
+
+    return redirect()->back()->with('success', 'تم حذف المصروف بنجاح!');
+}}

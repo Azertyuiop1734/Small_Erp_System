@@ -73,88 +73,95 @@ class ProductController extends Controller
         }
     }
     public function index(Request $request)
-    {
-        try {
+{
+    try {
+        // 1. جلب المخازن القابلة للعرض فقط (للقائمة المنسدلة)
+        $warehouses = Warehouses::where('display', 1)->get();
+        
+        // 2. تحديث الإحصائيات بحيث تشمل المنتجات والمخازن النشطة فقط
+        $totalProductsCount = Product::where('display', 1)->count();
+        $warehousesCount = $warehouses->count();
 
-            $warehouses = Warehouses::all();
-            $totalProductsCount = Product::count();
+        // 3. تحديث حساب النواقص (Low Stock) بحيث يشمل فقط المنتجات التي لها display = 1
+        $lowStockCount = ProductWarehouse::whereHas('product', function($q) {
+                $q->where('display', 1);
+            })
+            ->where('quantity', '>', 0)
+            ->where('quantity', '<=', 10)
+            ->count();
 
-            $warehousesCount = $warehouses->count();
+        // 4. تحديث حساب المنتجات المنتهية (Out of Stock) للمنتجات النشطة فقط
+        $outOfStockCount = ProductWarehouse::whereHas('product', function($q) {
+                $q->where('display', 1);
+            })
+            ->where('quantity', '<=', 0)
+            ->count();
 
+        $stats = [
+            'total_products' => $totalProductsCount,
+            'warehouses'     => $warehousesCount,
+            'low_stock'      => $lowStockCount,
+            'out_of_stock'   => $outOfStockCount,
+        ];
 
+        // 5. تعديل استعلام المنتجات الأساسي لإحضار النشطة فقط
+        $query = Product::where('display', 1)->with(['category', 'warehouses']);
 
-
-
-            $lowStockCount = ProductWarehouse::where('quantity', '>', 0)
-                ->where('quantity', '<=', 10)
-                ->count();
-
-
-            $outOfStockCount = ProductWarehouse::where('quantity', '<=', 0)
-                ->count();
-
-            $stats = [
-                'total_products' => $totalProductsCount,
-                'warehouses'     => $warehousesCount,
-                'low_stock'      => $lowStockCount,
-                'out_of_stock'   => $outOfStockCount,
-            ];
-
-            $query = Product::with(['category', 'warehouses']);
-
-            // البحث بالاسم أو الباركود
-            if ($request->filled('search_name')) {
-                $searchTerm = '%' . $request->search_name . '%';
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->where('name', 'like', $searchTerm)
-                        ->orWhere('barcode', 'like', $searchTerm);
-                });
-            }
-
-            // فلترة حسب المخزن
-            if ($request->filled('warehouse_id')) {
-                $warehouseId = $request->warehouse_id;
-                $query->whereHas('warehouses', function ($q) use ($warehouseId) {
-                    $q->where('warehouses.id', $warehouseId);
-                });
-            }
-
-            // ترتيب وترقيم
-            $products = $query->orderBy('id', 'desc')->paginate(10);
-
-            // إذا كان الطلب AJAX
-            if ($request->ajax()) {
-                return view('admin.stores.products_table', compact('products'))->render();
-            }
-
-            return view('admin.stores.display_products', compact('products', 'warehouses', 'stats'));
-        } catch (\Exception $e) {
-            return "حدث خطأ في الاستعلام: " . $e->getMessage();
+        // البحث بالاسم أو الباركود
+        if ($request->filled('search_name')) {
+            $searchTerm = '%' . $request->search_name . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                    ->orWhere('barcode', 'like', $searchTerm);
+            });
         }
-    }
-    public function destroy($id)
-    {
-        try {
 
-            $product = DB::table('products')->where('id', $id)->first();
-
-            if ($product) {
-
-                if ($product->image) {
-                    Storage::disk('public')->delete($product->image);
-                }
-
-
-                DB::table('products')->where('id', $id)->delete();
-
-                return redirect()->back()->with('success', 'تم حذف المنتج وكافة بياناته المخزنية بنجاح.');
-            }
-
-            return redirect()->back()->with('error_message', 'المنتج غير موجود.');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error_message', 'فشل الحذف: ' . $e->getMessage());
+        // فلترة حسب المخزن (تأكد أن المخزن المختار نشط أيضاً)
+        if ($request->filled('warehouse_id')) {
+            $warehouseId = $request->warehouse_id;
+            $query->whereHas('warehouses', function ($q) use ($warehouseId) {
+                $q->where('warehouses.id', $warehouseId)
+                  ->where('warehouses.display', 1); // اختياري لزيادة الدقة
+            });
         }
+
+        // ترتيب وترقيم
+        $products = $query->orderBy('id', 'desc')->paginate(10);
+
+        // إذا كان الطلب AJAX
+        if ($request->ajax()) {
+            return view('admin.stores.products_table', compact('products'))->render();
+        }
+
+        return view('admin.stores.display_products', compact('products', 'warehouses', 'stats'));
+    } catch (\Exception $e) {
+        return "حدث خطأ في الاستعلام: " . $e->getMessage();
     }
+}
+
+   public function destroy($id)
+{
+    try {
+        // العثور على المنتج
+        $product = DB::table('products')->where('id', $id)->first();
+
+        if ($product) {
+            // ملاحظة: قمنا بإزالة كود حذف الصورة من التخزين 
+            // لأن المنتج سيبقى موجوداً في قاعدة البيانات (مخفي فقط)
+
+            // تحديث عمود display إلى 0
+            DB::table('products')
+                ->where('id', $id)
+                ->update(['display' => 0]);
+
+            return redirect()->back()->with('success', 'تم إخفاء المنتج من القوائم بنجاح.');
+        }
+
+        return redirect()->back()->with('error_message', 'المنتج غير موجود.');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error_message', 'فشل الإخفاء: ' . $e->getMessage());
+    }
+}
 
     public function edit($id)
     {

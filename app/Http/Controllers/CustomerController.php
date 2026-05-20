@@ -11,12 +11,15 @@ class CustomerController extends Controller
     /**
      * Display a listing of all customers.
      */
-    public function index()
-    {
-       $customers = Customer::orderBy('created_at', 'desc')->get(); 
-        
-        return view('worker.display_customer', compact('customers'));
-    }
+   public function index()
+{
+    // جلب العملاء الذين لديهم قيمة display تساوي 1 فقط
+    $customers = Customer::where('display', 1)
+        ->orderBy('created_at', 'desc') 
+        ->get(); 
+    
+    return view('worker.display_customer', compact('customers'));
+}
 
     /**
      * Display the purchase history of a specific customer.
@@ -109,8 +112,13 @@ public function update(Request $request, $id)
 public function destroy($id)
 {
     $customer = Customer::findOrFail($id);
-    $customer->delete();
 
-    return redirect()->route('customers.index')->with('success', 'Customer deleted successfully');
+    // تغيير حالة العرض إلى 0 بدلاً من الحذف النهائي
+    $customer->update([
+        'display' => 0
+    ]);
+
+    return redirect()->route('customers.index')
+        ->with('success', 'تم إخفاء العميل بنجاح');
 }
 }

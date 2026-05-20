@@ -5,171 +5,165 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
-use App\Models\Warehouse; // تأكد من استدعاء موديل المخزن
+use App\Models\Warehouse; 
 use App\Models\Warehouses;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Attendance;
 use App\Models\Sale;
 use App\Models\Report;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage; // أضفت هذا السطر لإصلاح خطأ Storage في دالة update
+
 class UserController extends Controller
 {
     public function create()
     {
-        // جلب جميع المخازن لعرضها في القائمة المنسدلة
         $warehouses = Warehouses::all();
         return view('admin.human_management.create', compact('warehouses'));
     }
- public function createAdmin()
+
+    public function createAdmin()
     {
-        // جلب جميع المخازن لعرضها في القائمة المنسدلة
-       
         return view('admin.createAdmin');
     }
-   public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:6',
-        'salary' => 'nullable|numeric',
-        'hire_date' => 'nullable|date',
-        'warehouse_id' => 'required|exists:warehouses,id',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // التحقق من الصورة
-        'age' => 'required|numeric',
-        'gender' => 'required',
-        'job_title' => 'required',
-        'phone' => 'required'
-    ]);
 
-    // 1. التعامل مع رفع الصورة
-    $imagePath = null;
-    if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('users_images', 'public');
+    // تم الإبقاء على نسخة واحدة فقط من هذه الدالة
+    public function storeAdmin(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+        ]);
+
+        $adminRole = Role::where('role_name', 'Admin')->first();
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role_id' => $adminRole->id,
+            'status' => 'active'
+        ]);
+
+        return redirect()->back()->with('success', 'Admin created successfully');
     }
 
-    // 2. تجميع التفاصيل بالإنجليزية مفصولة بـ ;
-    // الترتيب: Age; Gender; Job; Phone
-    $details = "Age: {$request->age}; Gender: {$request->gender}; Job: {$request->job_title}; Phone: {$request->phone}";
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+            'salary' => 'nullable|numeric',
+            'hire_date' => 'nullable|date',
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'age' => 'required|numeric',
+            'gender' => 'required',
+            'job_title' => 'required',
+            'phone' => 'required'
+        ]);
 
-    $workerRole = Role::where('role_name', 'Worker')->first();
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('users_images', 'public');
+        }
 
-    User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role_id' => $workerRole->id,
-        'warehouse_id' => $request->warehouse_id,
-        'salary' => $request->salary,
-        'hire_date' => $request->hire_date,
-        'status' => 'active',
-        'image' => $imagePath, // حفظ مسار الصورة
-        'details' => $details  // حفظ سلسلة التفاصيل
-    ]);
+        $details = "Age: {$request->age}; Gender: {$request->gender}; Job: {$request->job_title}; Phone: {$request->phone}";
 
-    return redirect()->back()->with('success', 'Worker created successfully with image and details.');
-}
-public function storeAdmin(Request $request)
+        $workerRole = Role::where('role_name', 'Worker')->first();
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role_id' => $workerRole->id,
+            'warehouse_id' => $request->warehouse_id,
+            'salary' => $request->salary,
+            'hire_date' => $request->hire_date,
+            'status' => 'active',
+            'image' => $imagePath,
+            'details' => $details 
+        ]);
+
+        return redirect()->back()->with('success', 'Worker created successfully with image and details.');
+    }
+
+  public function index()
 {
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users',
-        'password' => 'required|min:6',
-    ]);
-
-    $adminRole = Role::where('role_name', 'Admin')->first();
-
-    User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role_id' => $adminRole->id,
-        'status' => 'active'
-    ]);
-
-    return redirect()->back()->with('success', 'Admin created successfully');
-}
-
-public function index()
-{
-    // جلب المستخدمين الذين ليس لديهم دور Admin
-    // نفترض أن اسم دور الأدمن في جدول الروار هو 'Admin'
-    $workers = User::whereHas('role', function($query) {
-        $query->where('role_name', '!=', 'Admin');
-    })->with('warehouse')->get();
+    $workers = User::where('display', 1) // جلب المستخدمين غير المخفيين فقط
+        ->whereHas('role', function($query) {
+            $query->where('role_name', '!=', 'Admin');
+        })
+        ->with(['warehouse' => function($query) {
+            $query->where('display', 1); // اختياري: جلب بيانات المخزن فقط إذا كان نشطاً
+        }])
+        ->get();
 
     return view('admin.human_management.index', compact('workers'));
 }
 
-// 2. حذف عامل
-public function destroy($id)
+    public function destroy($id)
 {
     $user = User::findOrFail($id);
-    $user->delete();
 
-    return redirect()->back()->with('success', 'تم حذف العامل بنجاح');
-}
-
-// 3. صفحة تعديل بيانات عامل
-public function edit($id)
-{
-    $user = User::findOrFail($id);
-    $warehouses = Warehouses::all();
-    return view('admin.human_management.edit', compact('user', 'warehouses'));
-}
-
-// 4. تحديث البيانات (Update)
-public function update(Request $request, $id)
-{
-    $user = User::findOrFail($id);
-    
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users,email,'.$id,
-        'salary' => 'nullable|numeric',
-        'warehouse_id' => 'required|exists:warehouses,id',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-        'age' => 'required|numeric',
-        'gender' => 'required',
-        'job_title' => 'required',
-        'phone' => 'required'
+    // تغيير حالة العرض إلى 0 بدلاً من الحذف الفيزيائي
+    $user->update([
+        'display' => 0
     ]);
 
-    // 1. تحديث الصورة إذا تم رفع واحدة جديدة
-    $imagePath = $user->image; 
-    if ($request->hasFile('image')) {
-        // اختياري: حذف الصورة القديمة من السيرفر لتوفير المساحة
-        if ($user->image) {
-            Storage::disk('public')->delete($user->image);
-        }
-        $imagePath = $request->file('image')->store('users_images', 'public');
+    return redirect()->back()->with('success', 'تم إخفاء بيانات العامل بنجاح');
+}
+
+    public function edit($id)
+    {
+        $user = User::findOrFail($id);
+        $warehouses = Warehouses::all();
+        return view('admin.human_management.edit', compact('user', 'warehouses'));
     }
 
-    // 2. إعادة دمج التفاصيل
-    $details = "Age: {$request->age}; Gender: {$request->gender}; Job: {$request->job_title}; Phone: {$request->phone}";
+    public function update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,'.$id,
+            'salary' => 'nullable|numeric',
+            'warehouse_id' => 'required|exists:warehouses,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'age' => 'required|numeric',
+            'gender' => 'required',
+            'job_title' => 'required',
+            'phone' => 'required'
+        ]);
 
-    $user->update([
-        'name' => $request->name,
-        'email' => $request->email,
-        'salary' => $request->salary,
-        'warehouse_id' => $request->warehouse_id,
-        'hire_date' => $request->hire_date,
-        'image' => $imagePath,
-        'details' => $details
-    ]);
+        $imagePath = $user->image; 
+        if ($request->hasFile('image')) {
+            if ($user->image) {
+                Storage::disk('public')->delete($user->image);
+            }
+            $imagePath = $request->file('image')->store('users_images', 'public');
+        }
 
-    return redirect()->route('users.index')->with('success', 'Worker details updated successfully');
-}
+        $details = "Age: {$request->age}; Gender: {$request->gender}; Job: {$request->job_title}; Phone: {$request->phone}";
 
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'salary' => $request->salary,
+            'warehouse_id' => $request->warehouse_id,
+            'hire_date' => $request->hire_date,
+            'image' => $imagePath,
+            'details' => $details
+        ]);
 
-
-
-
-
+        return redirect()->route('users.index')->with('success', 'Worker details updated successfully');
+    }
 
     public function index1(Request $request)
     {
-        // إذا أراد المستخدم الفلترة بتاريخ معين، وإلا سيجلب كل السجلات
         $query = Attendance::with(['user.warehouse', 'user.role']);
 
         if ($request->has('date') && $request->date != '') {
@@ -181,74 +175,57 @@ public function update(Request $request, $id)
         return view('admin.human_management.attandancy', compact('attendances'));
     }
 
-    
+    public function salesInfo($id) {
+        $worker = User::findOrFail($id);
+        $sales = Sale::where('user_id', $id)->with('saleItems.product')->get();
 
-// عرض ملخص مبيعات الموظف
+        $totalSalesCount = $sales->count();
+        $totalRevenue = $sales->sum('total_amount');
+        $totalProfit = 0;
 
-
-public function salesInfo($id) {
-
-    $worker = User::findOrFail($id);
-
-    $sales = Sale::where('user_id', $id)
-        ->with('saleItems.product')
-        ->get();
-
-    $totalSalesCount = $sales->count();
-    $totalRevenue = $sales->sum('total_amount');
-
-    $totalProfit = 0;
-
-    foreach($sales as $sale){
-        foreach($sale->saleItems as $item){
-
-            $costPrice = $item->product->purchase_price ?? 0;
-
-            $totalProfit += ($item->price - $costPrice) * $item->quantity;
+        foreach($sales as $sale){
+            foreach($sale->saleItems as $item){
+                $costPrice = $item->product->purchase_price ?? 0;
+                $totalProfit += ($item->price - $costPrice) * $item->quantity;
+            }
         }
+
+        return view('admin.human_management.sales_report',
+            compact('worker','sales','totalSalesCount','totalRevenue','totalProfit')
+        );
     }
 
-    return view('admin.human_management.sales_report',
-        compact('worker','sales','totalSalesCount','totalRevenue','totalProfit')
-    );
-}
-
-public function profile()
-{
-    // جلب المستخدم الحالي مع علاقاته (الدور والمخزن)
-    $user = Auth::user()->load(['role', 'warehouse']);
-    
-    return view('worker.profile', compact('user'));
-}
-public function edit1()
-{
-    $user = Auth::user();
-    return view('worker.edit_profile', compact('user'));
-}
-
-public function update1(Request $request)
-{
-    $user = Auth::user();
-
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-    ]);
-
-    // تحديث الاسم
-    $user->name = $request->name;
-
-    // تحديث الصورة إذا تم رفع صورة جديدة
-    if ($request->hasFile('image')) {
-        $path = $request->file('image')->store('users', 'public');
-        $user->image = $path;
+    public function profile()
+    {
+        $user = Auth::user()->load(['role', 'warehouse']);
+        return view('worker.profile', compact('user'));
     }
 
-    // تحديث حقل الـ details (تجميع القيم مرة أخرى بتنسيق نصي)
-    $user->details = "Age: {$request->age}; Gender: {$request->gender}; Job: {$request->job}; Phone: {$request->phone}";
+    public function edit1()
+    {
+        $user = Auth::user();
+        return view('worker.edit_profile', compact('user'));
+    }
 
-    $user->save();
+    public function update1(Request $request)
+    {
+        $user = Auth::user();
 
-    return redirect()->route('profile')->with('success', 'Profile updated successfully!');
-}
-}
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        $user->name = $request->name;
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('users', 'public');
+            $user->image = $path;
+        }
+
+        $user->details = "Age: {$request->age}; Gender: {$request->gender}; Job: {$request->job}; Phone: {$request->phone}";
+        $user->save();
+
+        return redirect()->route('profile')->with('success', 'Profile updated successfully!');
+    }
+} // نهاية الكلاس (قوس واحد فقط)
