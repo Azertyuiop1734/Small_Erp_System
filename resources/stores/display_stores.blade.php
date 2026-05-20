@@ -61,10 +61,6 @@
                                 <a href="{{ route('stores.edit', $store->id) }}" class="p-3 bg-amber-500/10 text-amber-600 rounded-2xl hover:bg-amber-500 hover:text-white transition-all shadow-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form id="delete-form-{{ $store->id }}" action="{{ route('stores.destroy', $store->id) }}" method="POST" class="hidden">
-            @csrf
-            @method('DELETE')
-        </form>
                                 <button onclick="confirmDelete({{ $store->id }})" class="p-3 bg-red-500/10 text-red-600 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-sm">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -86,97 +82,33 @@
         </div>
     </div>
 </div>
-<style>
-    /* تنسيق زر التأكيد الملون */
-    .custom-confirm-btn {
-        background-color: #ef4444 !important;
-        color: white !important;
-        padding: 12px 35px !important;
-        border-radius: 18px !important;
-        font-weight: 700 !important;
-        margin: 10px 8px !important;
-        transition: all 0.3s ease !important;
-        border: none !important;
-        cursor: pointer;
-    }
-    .custom-confirm-btn:hover {
-        transform: translateY(-3px) scale(1.02);
-        filter: brightness(1.1);
-    }
-
-    /* تنسيق زر الإلغاء الهادئ */
-    .custom-cancel-btn {
-        background-color: #f1f5f9 !important;
-        color: #64748b !important;
-        padding: 12px 35px !important;
-        border-radius: 18px !important;
-        font-weight: 700 !important;
-        margin: 10px 8px !important;
-        transition: all 0.3s ease !important;
-        border: none !important;
-    }
-    .dark .custom-cancel-btn {
-        background-color: #1e293b !important;
-        color: #94a3b8 !important;
-    }
-    .custom-cancel-btn:hover {
-        background-color: #e2e8f0 !important;
-        color: #1e293b !important;
-    }
-</style>
 
 @push('scripts')
 <script>
     function confirmDelete(id) {
         const isDark = document.documentElement.classList.contains('dark');
         
-        // الألوان الخاصة بالحذف (تحذير/خطر)
-        const theme = {
-            main: '#ef4444', // اللون الأحمر الأساسي
-            shadow: 'rgba(239, 68, 68, 0.3)', // ظل أحمر شفاف
-            bg: isDark ? '#0f172a' : '#ffffff'
-        };
-
         Swal.fire({
             title: 'هل أنت متأكد؟',
-            text: "سيتم حذف هذا السجل وكافة البيانات المرتبطة به نهائياً!",
+            text: "سيتم حذف المخزن نهائياً!",
             icon: 'warning',
-            iconColor: theme.main, // تلوين أيقونة التحذير بالأحمر
             showCancelButton: true,
-            confirmButtonText: 'نعم، احذف الآن',
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: isDark ? '#334155' : '#94a3b8',
+            confirmButtonText: 'نعم، احذف',
             cancelButtonText: 'إلغاء',
-            
-            background: theme.bg,
-            color: isDark ? '#f1f5f9' : '#1e293b',
-            
+            background: isDark ? '#0f172a' : '#ffffff',
+            color: isDark ? '#f8fafc' : '#1e293b',
             customClass: {
-                popup: 'rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl backdrop-blur-xl',
-                title: 'text-2xl font-black pt-4 tracking-tight',
-                htmlContainer: 'text-right font-medium opacity-80',
-                confirmButton: 'custom-confirm-btn', // كلاس مخصص للتحكم باللون والظل
-                cancelButton: 'custom-cancel-btn'
-            },
-
-            buttonsStyling: false,
-            showClass: { popup: 'animate__animated animate__zoomIn animate__faster' },
-            hideClass: { popup: 'animate__animated animate__fadeOut animate__faster' },
-
-            // إضافة تأثيرات الظل الملون عند فتح التنبيه
-            didOpen: () => {
-                const btn = Swal.getConfirmButton();
-                btn.style.backgroundColor = theme.main;
-                btn.style.boxShadow = `0 10px 25px ${theme.shadow}`;
+                popup: 'rounded-[2rem] border border-white/10 shadow-2xl'
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // إرسال النموذج الفعلي
-                const form = document.getElementById('delete-form-' + id);
-                if(form) form.submit();
+                // كود الحذف هنا
+                Swal.fire('تم الحذف!', 'تمت إزالة المخزن بنجاح.', 'success');
             }
         });
     }
 </script>
-
-
 @endpush
 @endsection

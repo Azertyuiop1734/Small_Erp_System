@@ -74,89 +74,89 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    function setupDropdown(btnId, menuId, arrowId) {
-        const btn = document.getElementById(btnId);
-        const menu = document.getElementById(menuId);
-        const arrow = document.getElementById(arrowId);
+    /**
+     * 1. الدالة الجمالية الموحدة للتنبيهات
+     * تدعم Dark/Light Mode وتنسيق الأزرار والأنيميشن
+     */
+    function showCustomAlert(title, text, icon = 'success', html = null) {
+        const isDark = document.documentElement.classList.contains('dark');
         
-        if(btn && menu) {
-            btn.addEventListener('click', () => {
-                const isOpen = menu.style.maxHeight !== '0px' && menu.style.maxHeight !== '';
-                menu.style.maxHeight = isOpen ? '0px' : menu.scrollHeight + 'px';
-                if(arrow) arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+        return Swal.fire({
+            title: title,
+            text: text,
+            html: html,
+            icon: icon,
+            showConfirmButton: true,
+            confirmButtonText: 'حسناً',
+            background: isDark ? '#1e293b' : '#ffffff', 
+            color: isDark ? '#f8fafc' : '#1e293b',
+            iconColor: icon === 'success' ? '#10b981' : (icon === 'error' ? '#ef4444' : '#f59e0b'),
+            showClass: { popup: 'animate__animated animate__zoomIn animate__faster' },
+            hideClass: { popup: 'animate__animated animate__zoomOut animate__faster' },
+            customClass: {
+                popup: 'rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl',
+                title: 'text-2xl font-bold font-cairo',
+                confirmButton: icon === 'error' 
+                    ? 'bg-rose-600 hover:bg-rose-700 text-white px-10 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-rose-600/20 mx-2'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white px-10 py-3 rounded-2xl font-bold transition-all shadow-lg shadow-blue-600/20 mx-2',
+                cancelButton: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-10 py-3 rounded-2xl font-bold mx-2'
+            },
+            buttonsStyling: false 
+        });
+    }
+
+    /**
+     * 2. إعداد القوائم المنسدلة (Sidebar Dropdowns)
+     */
+
+
+    /**
+     * 4. معالجة أحداث التنبيهات (Flash Messages & Errors)
+     */
+    @if(session('success'))
+        showCustomAlert('تمت العملية بنجاح!', "{{ session('success') }}", 'success');
+    @endif
+
+    @if($errors->any())
+        let errorList = '<ul class="text-right text-sm space-y-1">';
+        @foreach ($errors->all() as $error)
+            errorList += '<li class="text-rose-500 font-semibold">• {{ $error }}</li>';
+        @endforeach
+        errorList += '</ul>';
+        showCustomAlert('خطأ في البيانات!', null, 'error', errorList);
+    @endif
+
+    /**
+     * 5. تنبيه "مسح النموذج" الاحترافي
+     */
+    const resetBtn = document.querySelector('button[type="reset"]');
+    if(resetBtn) {
+        resetBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const isDark = document.documentElement.classList.contains('dark');
+            
+            Swal.fire({
+                title: 'هل أنت متأكد؟',
+                text: "سيتم حذف كل ما كتبته في هذا التقرير ولن تتمكن من التراجع!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، امسح الكل',
+                cancelButtonText: 'تراجع',
+                background: isDark ? '#1e293b' : '#ffffff',
+                color: isDark ? '#f8fafc' : '#1e293b',
+                customClass: {
+                    popup: 'rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-2xl',
+                    confirmButton: 'bg-rose-600 hover:bg-rose-700 text-white px-8 py-3 rounded-2xl font-bold mx-2',
+                    cancelButton: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-8 py-3 rounded-2xl font-bold mx-2'
+                },
+                buttonsStyling: false
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    this.closest('form').reset();
+                    showCustomAlert('تم المسح!', 'تمت إعادة تعيين النموذج بنجاح', 'success');
+                }
             });
-        }
+        });
     }
-
-    // تفعيل كل القوائم
-    setupDropdown('supplierBtn', 'supplierMenu', 'supplierArrow');
-    setupDropdown('warehouseBtn', 'warehouseMenu', 'warehouseArrow');
-    setupDropdown('employeeBtn', 'employeeMenu', 'employeeArrow');
-    setupDropdown('purchasesBtn', 'purchasesMenu', 'purchasesArrow');
-    setupDropdown('expensesBtn', 'expensesMenu', 'expensesArrow');
-    // 2. وظيفة إغلاق وفتح السايد بار (Sidebar Toggle)
-    const toggleBtn = document.getElementById('toggleSidebar');
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('main-content');
-toggleBtn.addEventListener('click', () => {
-    // إخفاء السايد بار بإزاحته لليمين خارج الشاشة
-    sidebar.classList.toggle('translate-x-full');
-    
-    if (sidebar.classList.contains('translate-x-full')) {
-        // توسيع المحتوى والناف بار ليأخذا كامل الشاشة
-        mainContent.classList.replace('mr-72', 'mr-0');
-    } else {
-        // إعادة الهامش لحجز مكان للسايد بار
-        mainContent.classList.replace('mr-0', 'mr-72');
-    }
-});
-
-    // 3. تنبيه النجاح (SweetAlert)
-    @if(session('success'))
-        Swal.fire({
-            title: 'تم الحفظ!',
-            text: "{{ session('success') }}",
-            icon: 'success',
-            background: '#0f172a',
-            color: '#fff',
-            confirmButtonColor: '#2563eb'
-        });
-    @endif
-    // إعدادات التنبيهات المتوافقة مع الـ Dark Mode
-    const swalConfig = {
-        background: document.documentElement.classList.contains('dark') ? '#0f172a' : '#fff',
-        color: document.documentElement.classList.contains('dark') ? '#fff' : '#000',
-    };
-
-    @if(session('success'))
-        Swal.fire({
-            ...swalConfig,
-            icon: 'success',
-            title: 'تم الإرسال!',
-            text: "{{ session('success') }}",
-            confirmButtonColor: '#2563eb',
-            confirmButtonText: 'حسناً'
-        });
-    @endif
-
-    // تنبيه عند محاولة المسح
-    document.querySelector('button[type="reset"]').addEventListener('click', function(e) {
-        e.preventDefault();
-        Swal.fire({
-            ...swalConfig,
-            title: 'هل أنت متأكد؟',
-            text: "سيتم حذف كل ما كتبته في هذا التقرير!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#e11d48',
-            cancelButtonColor: '#64748b',
-            confirmButtonText: 'نعم، امسح',
-            cancelButtonText: 'إلغاء'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                this.closest('form').reset();
-            }
-        });
-    });
 </script>
 @endpush

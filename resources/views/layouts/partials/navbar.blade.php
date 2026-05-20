@@ -1,4 +1,4 @@
-<nav class="flex items-center justify-between px-8 py-4 bg-white/80 dark:bg-[#020617]/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 sticky top-0 z-40 transition-colors duration-300">
+<nav class="flex items-center justify-between px-8 py-4 bg-gradient-to-b from-white to-[#78c4ef] dark:bg-gradient-to-b dark:from-[#020617] dark:to-[#224189] backdrop-blur-md border-b border-gray-100 dark:border-gray-800 sticky top-0 z-40 transition-colors duration-300">
     <div class="flex items-center gap-4">
         <button id="theme-toggle" class="p-2 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300 text-gray-500 dark:text-gray-400">
             <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -16,10 +16,28 @@
         </button>
 
         <h1 class="text-xl font-bold text-gray-900 dark:text-white">@yield('title')</h1>
+
+        
     </div>
 
     <div class="flex items-center gap-3">
-        <span class="text-blue-600 dark:text-blue-500 font-semibold text-sm">Admin</span>
-        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-600/20">A</div>
+        {{-- عرض اسم الرتبة والمستخدم ديناميكياً --}}
+        <div class="text-left hidden sm:block">
+            <p class="text-[10px] font-black text-blue-600 dark:text-blue-500 uppercase tracking-widest leading-none mb-1">
+                {{ auth()->user()->role->role_name }}
+            </p>
+            <p class="text-sm font-bold text-gray-900 dark:text-white leading-none">
+                {{ auth()->user()->name }}
+            </p>
+        </div>
+
+        {{-- الصورة الشخصية أو أول حرف من الاسم --}}
+        <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-blue-600/20 border-2 border-white dark:border-gray-800">
+            @if(auth()->user()->image)
+                <img src="{{ asset('storage/' . auth()->user()->image) }}" class="w-full h-full rounded-full object-cover">
+            @else
+                {{ substr(auth()->user()->name, 0, 1) }}
+            @endif
+        </div>
     </div>
 </nav>
