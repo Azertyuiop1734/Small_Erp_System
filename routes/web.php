@@ -32,9 +32,10 @@ Route::get('/admin/dashboard', function () {
     return "صفحة الادمن";
 })->name('admin.dashboard');
 
-Route::get('/worker/dashboard', function () {
-    return "صفحة العامل";
-})->name('worker.dashboard');
+Route::get('/worker/dashboard', [DashboardController::class, 'workerIndex'])->name('worker.dashboard');
+
+Route::get('/admin/users/createAdmin', [UserController::class, 'createAdmin'])->name('user.create');
+
 Route::post('/create-admin', [UserController::class, 'storeAdmin'])->name('admin.store');
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])
     ->name('admin.dashboard');
@@ -63,15 +64,15 @@ Route::post('reset-password', [ForgotPasswordController::class, 'updatePassword'
 
 Route::get('/admin/users/create', [UserController::class, 'create'])->name('users.create');
 Route::post('/admin/users/store', [UserController::class, 'store'])->name('users.store');
-Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');//sssssss
+Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
 Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
 Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 Route::get('/attendance', [UserController::class, 'index1'])->name('attendance.index');
 Route::get('/users/{id}/sales', [UserController::class, 'salesInfo'])->name('users.sales');
-Route::get('/admin/invoices/{id}', [UserController::class, 'invoiceDetails']);
-Route::get('/admin/users/{id}/reports', [UserController::class, 'userReports'])->name('reports.user');
+Route::get('/admin/invoices/{id}', [UserController::class, 'invoiceDetails']);///kkkkkkk
+Route::get('/admin/users/{id}/reports', [UserController::class, 'userReports'])->name('reports.user');////kkkkk
 Route::get('/profile', [UserController::class, 'profile'])->name('profile')->middleware('auth');
 Route::get('/profile/edit', [UserController::class, 'edit1'])->name('profile.edit')->middleware('auth');
 Route::put('/profile/update', [UserController::class, 'update1'])->name('profile.update')->middleware('auth');
@@ -98,15 +99,17 @@ Route::put('/admin/suppliers/update/{id}', [SupplierController::class, 'update']
 //ادارة المخازن و المنتجات في النضام
 Route::get('/admin/stores/add', [StoreController::class, 'create'])->name('stores.create');
 Route::post('/admin/stores/store', [StoreController::class, 'store'])->name('stores.store');
-Route::get('/admin/stores/display', [StoreController::class, 'index'])->name('stores.index');//sssssssssss
+Route::get('/admin/stores/display', [StoreController::class, 'index'])->name('stores.index');
 Route::delete('/admin/stores/delete/{id}', [StoreController::class, 'destroy'])->name('stores.destroy');
+Route::get('/stores/{id}/edit', [StoreController::class, 'edit'])->name('stores.edit');
+Route::put('/stores/{id}', [StoreController::class, 'update'])->name('stores.update');
 Route::get('/admin/products/add', [ProductController::class, 'create'])->name('products.create');
 Route::post('/admin/products/store', [ProductController::class, 'store'])->name('products.store');
 Route::get('/admin/products/display', [ProductController::class, 'index'])->name('products.index');
-Route::get('/admin/products/delete/{id}', [ProductController::class, 'destroy'])->name('products.delete');
+Route::delete('/admin/products/delete/{id}', [ProductController::class, 'destroy'])->name('products.delete');
 Route::get('/admin/products/edit/{id}', [ProductController::class, 'edit'])->name('products.edit');
-Route::post('/admin/products/update/{id}', [ProductController::class, 'update'])->name('products.update');
-Route::get('/inventory/low-stock', [ProductController::class, 'lowStock'])->name('inventory.low_stock');//sssssss
+Route::put('/admin/products/update/{id}', [ProductController::class, 'update'])->name('products.update');
+Route::get('/inventory/low-stock', [ProductController::class, 'lowStock'])->name('inventory.low_stock');
 
 
 
@@ -151,7 +154,7 @@ Route::get('/admin/categories/delete/{id}', [CategoryController::class, 'destroy
     Route::get('/product/{barcode}', [POSController::class, 'getProductByBarcode']);
     Route::post('/pos/add', [POSController::class, 'storeSale']);
     // انقل هذا السطر إلى الداخل هنا
-    Route::get('/customers/search', [POSController::class, 'searchCustomers']);
+    Route::get('/customers/search', [POSController::class, 'searchCustomers']);//غغغغغ
     Route::get('/pos/print/{id}', [POSController::class, 'printInvoice'])->name('pos.print');
 
 
@@ -174,12 +177,19 @@ Route::delete('/customers/{id}', [CustomerController::class, 'destroy'])->name('
 Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
 Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
 Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
-
+Route::delete('/expenses/{id}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 //-----------------------------------------------
 //ادارة التقارير الخاصة ب العمال
+// صفحة عرض قائمة التقارير (GET)
+Route::get('/reports', [ReportController::class, 'index2'])->name('reports.index');
+
+// صفحة إنشاء تقرير جديد (Form)
 Route::get('/reports/create', [ReportController::class, 'create'])->name('reports.create');
-Route::post('/reports', [ReportController::class, 'store'])->name('reports.store');
-Route::get('/admin/reports', [ReportController::class,'index2'])->name('reports.index');
+
+// إرسال بيانات التقرير وحفظها (POST)
+Route::post('/reports/store', [ReportController::class, 'store'])->name('reports.store');
+
+// حذف تقرير
 Route::delete('/reports/{id}', [ReportController::class, 'destroy2'])->name('reports.destroy');
 
 //-----------------
@@ -193,8 +203,7 @@ Route::post('/sales/update-payment/{id}', [App\Http\Controllers\SaleController::
 Route::get('/finance-dashboard', [App\Http\Controllers\StatisticsController::class, 'index'])->name('finance.dashboard');
 Route::get('/invoice-dashboard', [App\Http\Controllers\StatisticsController::class, 'index1'])->name('invoice.dashboard');
 Route::get('/late-payers', [App\Http\Controllers\StatisticsController::class, 'index2'])->name('late.payers');
-Route::get('/general_sales', [App\Http\Controllers\StatisticsController::class, 'index3'])->name('late.payers');
+Route::get('/general_sales', [App\Http\Controllers\StatisticsController::class, 'index3'])->name('general.sales');
 Route::get('/product-analysis', [App\Http\Controllers\StatisticsController::class, 'index4'])->name('products.analysis');
-Route::get('/customers', [App\Http\Controllers\StatisticsController::class, 'index5'])->name('customers');
-
+Route::get('/customers1', [App\Http\Controllers\StatisticsController::class, 'index5'])->name('customers1');
 
